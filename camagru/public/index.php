@@ -11,25 +11,25 @@ $authController = new AuthController();
 $request = strtok($_SERVER["REQUEST_URI"], '?');
 
 switch ($request) {
-    case '/' :
+    case '/':
         require __DIR__ . '/../src/views/home.php';
         break;
-    case '/register' :
+    case '/register':
         require __DIR__ . '/../src/views/register.php';
         break;
-    case '/login' :
+    case '/login':
         require __DIR__ . '/../src/views/login.php';
         break;
-    case '/forgot_password' :
+    case '/forgot_password':
         require __DIR__ . '/../src/views/forgot_password.php';
         break;
-    case '/logout' :
+    case '/logout':
         $authController->logout();
         break;
-    case '/register_action' :
+    case '/register_action':
         $authController->register(); // Correction ici
         break;
-    case '/login_action' :
+    case '/login_action':
         $authController->login();
         break;
     default:
