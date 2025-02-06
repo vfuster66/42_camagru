@@ -1,0 +1,258 @@
+/* =============================== */
+/* 🌎 RESET & STRUCTURE GLOBALE   */
+/* =============================== */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+body, h1, h2, p, ul, li, input, button {
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+}
+
+/* 🌄 Fond dégradé */
+body {
+    background: linear-gradient(to right, #ff9a9e, #fad0c4);
+    text-align: center;
+}
+
+/* =============================== */
+/* 🏠 MAIN : CENTRAGE & ESPACEMENT */
+/* =============================== */
+
+/* 📌 Conteneur principal (permet au footer de rester en bas) */
+main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 20px;
+    text-align: center;
+}
+
+* 🏆 Titre principal */
+h1, h2 {
+    font-size: 32px;
+    color: #fff;
+    margin-bottom: 20px;
+}
+
+/* 📄 Formulaires */
+form {
+    margin-top: 20px;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* ✏️ Champs et boutons */
+input, button {
+    display: block;
+    margin: 10px auto;
+    padding: 12px;
+    border-radius: 5px;
+    width: 100%;
+    max-width: 300px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+}
+
+/* 🎨 Boutons */
+button {
+    background-color: #ff7675;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.3s;
+}
+
+button:hover {
+    background-color: #d63031;
+}
+
+/* 📌 Liens sous les formulaires */
+main p {
+    margin-top: 15px;
+    font-size: 14px;
+}
+
+main p a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+main p a:hover {
+    text-decoration: underline;
+}
+
+/* =============================== */
+/* 🏠 HEADER & NAVIGATION         */
+/* =============================== */
+header {
+    background: linear-gradient(to right, #ff7675, #fd79a8);
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between; /* Camagru à gauche, nav à droite */
+    align-items: center;
+    color: white;
+}
+
+/* 🏆 Style du logo */
+.logo h1 {
+    font-family: 'Pacifico', cursive;
+    font-size: 64px;
+    margin: 0;
+}
+
+.logo a {
+    text-decoration: none;
+    color: white;
+}
+
+nav {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+}
+
+nav ul li {
+    margin: 0 15px;
+}
+
+nav ul li a {
+    color: white;
+    text-decoration: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+
+.register-btn {
+    background: white;
+    color: #fd79a8;
+    padding: 8px 12px;
+    border-radius: 5px;
+}
+
+.login-btn {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 8px 12px;
+    border-radius: 5px;
+    text-decoration: none;
+}
+
+.login-btn:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.logout-btn {
+    background: #d63031;
+    padding: 8px 12px;
+    border-radius: 5px;
+}
+
+/* =============================== */
+/* 📝 FORMULAIRES                 */
+/* =============================== */
+h2 {
+    color: #fff;
+    font-size: 28px;
+}
+
+/* 📄 Formulaires */
+form {
+    min-width: 300px;
+    max-width: 500px;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    display: inline-block;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* ✏️ Champs et boutons */
+input, button {
+    display: block;
+    margin: 20px auto;
+    padding: 10px;
+    border-radius: 5px;
+    width: 80%;
+    max-width: 300px;
+    border: 1px solid #ccc;
+}
+
+/* 🎨 Boutons */
+button {
+    background-color: #ff7675;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.3s;
+}
+
+button:hover {
+    background-color: #d63031;
+}
+
+/* =============================== */
+/* 👣 FOOTER                       */
+/* =============================== */
+footer {
+    background: #2d3436;
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+    width: 100%;
+    position: relative;
+    bottom: 0;
+}
+
+footer a {
+    color: #ff7675;
+    text-decoration: none;
+    margin: 0 10px;
+    transition: 0.3s;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}
+
+/* ✅ Message de succès */
+.success-message {
+    color: #27ae60;
+    background: #e9f7ef;
+    padding: 10px;
+    border-radius: 5px;
+    display: inline-block;
+    margin-bottom: 15px;
+}
+
+/* ❌ Message d'erreur */
+.error-message {
+    color: #c0392b;
+    background: #f8d7da;
+    padding: 10px;
+    border-radius: 5px;
+    display: inline-block;
+    margin-bottom: 15px;
+}
