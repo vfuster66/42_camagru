@@ -27,7 +27,7 @@ switch ($request) {
         $authController->logout();
         break;
     case '/register_action' :
-        $authController->register();
+        $authController->register(); // Correction ici
         break;
     case '/login_action' :
         $authController->login();
