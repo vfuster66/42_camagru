@@ -14,14 +14,66 @@ class Image {
      */
     public function saveImage($userId, $imagePath) {
         try {
-            $sql = "INSERT INTO images (user_id, image_path) VALUES (:user_id, :image_path)";
+            error_log("Tentative de sauvegarde d'image - userId: $userId, imagePath: $imagePath");
+            
+            // Récupérer les informations sur l'image
+            $filePath = dirname(__DIR__, 2) . '/public/uploads/' . $imagePath;
+            $imageInfo = getimagesize($filePath);
+            
+            if (!$imageInfo) {
+                error_log("Impossible d'obtenir les informations de l'image");
+                return false;
+            }
+    
+            $sql = "INSERT INTO images (
+                user_id, 
+                image_path, 
+                original_name,
+                mime_type,
+                file_size,
+                width,
+                height,
+                is_public
+            ) VALUES (
+                :user_id, 
+                :image_path, 
+                :original_name,
+                :mime_type,
+                :file_size,
+                :width,
+                :height,
+                :is_public
+            )";
+    
             $stmt = $this->pdo->prepare($sql);
-            return $stmt->execute([
+            
+            $fileSize = filesize($filePath);
+            
+            $params = [
                 'user_id' => $userId,
-                'image_path' => $imagePath
-            ]);
+                'image_path' => $imagePath,
+                'original_name' => pathinfo($filePath, PATHINFO_BASENAME),
+                'mime_type' => $imageInfo['mime'],
+                'file_size' => $fileSize,
+                'width' => $imageInfo[0],
+                'height' => $imageInfo[1],
+                'is_public' => true
+            ];
+    
+            error_log("Paramètres de la requête: " . print_r($params, true));
+            
+            $result = $stmt->execute($params);
+            
+            if (!$result) {
+                error_log("Erreur SQL: " . print_r($stmt->errorInfo(), true));
+                return false;
+            }
+            
+            error_log("Image sauvegardée avec succès !");
+            return true;
         } catch (PDOException $e) {
-            error_log("Erreur lors de la sauvegarde de l'image: " . $e->getMessage());
+            error_log("Erreur PDO lors de la sauvegarde de l'image: " . $e->getMessage());
+            error_log("Stack trace: " . $e->getTraceAsString());
             return false;
         }
     }

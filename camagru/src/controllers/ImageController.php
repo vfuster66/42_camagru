@@ -40,6 +40,8 @@ class ImageController {
         }
     
         try {
+            error_log("Début de uploadImage");
+            
             if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
                 throw new Exception('Token CSRF invalide');
             }
@@ -57,24 +59,52 @@ class ImageController {
             $imageData = str_replace(' ', '+', $imageData);
             $imageDecoded = base64_decode($imageData);
     
+            if ($imageDecoded === false) {
+                throw new Exception('Échec du décodage base64');
+            }
+    
+            // Vérification du dossier uploads
+            if (!file_exists($this->uploadDir)) {
+                if (!mkdir($this->uploadDir, 0777, true)) {
+                    throw new Exception('Impossible de créer le dossier uploads');
+                }
+            }
+    
+            if (!is_writable($this->uploadDir)) {
+                throw new Exception('Le dossier uploads n\'est pas accessible en écriture');
+            }
+    
             $fileName = uniqid() . '_' . time() . '.png';
             $filePath = $this->uploadDir . $fileName;
     
+            error_log("Sauvegarde de l'image vers: $filePath");
+            
             if (file_put_contents($filePath, $imageDecoded) === false) {
                 throw new Exception('Erreur lors de la sauvegarde du fichier');
             }
     
+            // Vérification que le fichier a bien été créé
+            if (!file_exists($filePath)) {
+                throw new Exception('Le fichier n\'a pas été créé');
+            }
+    
+            error_log("Fichier sauvegardé avec succès, tentative de sauvegarde en BDD...");
+            
+            // Sauvegarde en base de données
             if ($this->imageModel->saveImage($_SESSION['user']['id'], $fileName)) {
+                error_log("Sauvegarde en BDD réussie !");
                 echo json_encode(['success' => true, 'path' => $fileName]);
             } else {
+                unlink($filePath); // Supprime le fichier si erreur BDD
                 throw new Exception('Erreur lors de la sauvegarde en base de données');
             }
     
         } catch (Exception $e) {
+            error_log("Erreur dans uploadImage: " . $e->getMessage());
             http_response_code(400);
             echo json_encode(['error' => $e->getMessage()]);
         }
-    }   
+    }
 
     /**
      * Capture et sauvegarde une image depuis la webcam
