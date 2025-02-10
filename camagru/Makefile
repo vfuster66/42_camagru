@@ -25,12 +25,9 @@ clean:
 
 init:
 	@echo "🚀 Initializing project..."
-	@mkdir -p public/assets/{css,js,images}
-	@mkdir -p src/{config,controllers,models,views}
-	@echo "<?php phpinfo(); ?>" > public/index.php
 	@chmod -R 755 public
+	@chmod -R 755 public/uploads
 	@chmod 644 public/index.php
-	@echo "RewriteEngine On" > public/.htaccess
 	@chmod 644 public/.htaccess
 	@make build
 	@make up

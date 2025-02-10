@@ -1,14 +1,16 @@
 services:
   web:
     build:
-      context: ./docker/php
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: docker/php/Dockerfile
     container_name: camagru-web
     ports:
       - "8080:80"
     volumes:
-      - ./public:/var/www/html/public
-      - ./src:/var/www/html/src
+      - ./public:/var/www/html/public:ro
+      - ./src:/var/www/html/src:ro
+      - ./vendor:/var/www/html/vendor
+      - uploads_data:/var/www/html/public/uploads
     environment:
       - DB_DATABASE=${DB_DATABASE}
       - DB_USERNAME=${DB_USERNAME}
@@ -41,4 +43,6 @@ networks:
 
 volumes:
   mysql_data:
+    driver: local
+  uploads_data:
     driver: local

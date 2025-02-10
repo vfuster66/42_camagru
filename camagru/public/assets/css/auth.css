@@ -1,0 +1,127 @@
+/* =============================== */
+/* 📝 STYLES AUTHENTIFICATION     */
+/* =============================== */
+
+* {
+    box-sizing: border-box;
+}
+
+.auth-container {
+    max-width: 600px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.loading-message {
+    margin: 2rem 0;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.verification-notice {
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+    padding: 15px 20px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    text-align: left;
+    line-height: 1.5;
+}
+
+.verification-notice i {
+    margin-right: 10px;
+    color: #28a745;
+}
+
+/* Boutons spécifiques navigation */
+.register-btn {
+    background: white;
+    color: #fd79a8;
+    padding: 8px 12px;
+    border-radius: 5px;
+}
+
+.login-btn {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 8px 12px;
+    border-radius: 5px;
+    text-decoration: none;
+}
+
+.login-btn:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.logout-btn {
+    background: #d63031;
+    padding: 8px 12px;
+    border-radius: 5px;
+}
+
+/* Formulaires */
+form {
+    margin-top: 20px;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    min-width: 400px;
+    max-width: 500px;
+}
+
+/* Champs de formulaire */
+input {
+    display: block;
+    margin: 10px auto;
+    padding: 12px;
+    border-radius: 5px;
+    width: 100%;
+    max-width: 300px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+}
+
+/* Boutons */
+button {
+    display: block;
+    margin: 20px auto;
+    padding: 12px;
+    border-radius: 5px;
+    width: 100%;
+    max-width: 300px;
+    background-color: #ff7675;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.3s;
+}
+
+button:hover {
+    background-color: #d63031;
+}
+
+/* Liens sous les formulaires */
+form + p {
+    margin-top: 15px;
+    font-size: 14px;
+}
+
+form + p a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+form + p a:hover {
+    text-decoration: underline;
+}

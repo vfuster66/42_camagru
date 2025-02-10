@@ -4,7 +4,7 @@ class Database {
     private $pdo;
 
     private function __construct() {
-        $host = 'camagru-mysql'; // Nom du conteneur MySQL
+        $host = 'camagru-mysql';
         $dbname = 'camagru';
         $username = 'vfuster';
         $password = 'Bonjour42';

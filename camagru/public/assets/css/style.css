@@ -24,8 +24,6 @@ body {
 /* =============================== */
 /* 🏠 MAIN : CENTRAGE & ESPACEMENT */
 /* =============================== */
-
-/* 📌 Conteneur principal (permet au footer de rester en bas) */
 main {
     flex: 1;
     display: flex;
@@ -36,65 +34,11 @@ main {
     text-align: center;
 }
 
-* 🏆 Titre principal */
+/* 🏆 Titres */
 h1, h2 {
     font-size: 32px;
     color: #fff;
     margin-bottom: 20px;
-}
-
-/* 📄 Formulaires */
-form {
-    margin-top: 20px;
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-/* ✏️ Champs et boutons */
-input, button {
-    display: block;
-    margin: 10px auto;
-    padding: 12px;
-    border-radius: 5px;
-    width: 100%;
-    max-width: 300px;
-    border: 1px solid #ccc;
-    font-size: 16px;
-}
-
-/* 🎨 Boutons */
-button {
-    background-color: #ff7675;
-    color: white;
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
-    transition: 0.3s;
-}
-
-button:hover {
-    background-color: #d63031;
-}
-
-/* 📌 Liens sous les formulaires */
-main p {
-    margin-top: 15px;
-    font-size: 14px;
-}
-
-main p a {
-    color: #fff;
-    text-decoration: none;
-    font-weight: bold;
-}
-
-main p a:hover {
-    text-decoration: underline;
 }
 
 /* =============================== */
@@ -102,14 +46,13 @@ main p a:hover {
 /* =============================== */
 header {
     background: linear-gradient(to right, #ff7675, #fd79a8);
-    padding: 15px 20px;
+    padding: 15px 10px;
     display: flex;
-    justify-content: space-between; /* Camagru à gauche, nav à droite */
+    justify-content: space-between;
     align-items: center;
     color: white;
 }
 
-/* 🏆 Style du logo */
 .logo h1 {
     font-family: 'Pacifico', cursive;
     font-size: 64px;
@@ -126,6 +69,7 @@ nav {
     width: 100%;
     justify-content: space-between;
     align-items: center;
+    padding: 0 20px;
 }
 
 nav ul {
@@ -145,76 +89,131 @@ nav ul li a {
     transition: 0.3s;
 }
 
-.register-btn {
-    background: white;
-    color: #fd79a8;
-    padding: 8px 12px;
-    border-radius: 5px;
+.nav-links {
+    list-style: none;
+    display: flex;
+    margin: 0;
+    padding: 0;
+    align-items: center;
 }
 
-.login-btn {
-    background: rgba(255, 255, 255, 0.2);
-    padding: 8px 12px;
-    border-radius: 5px;
-    text-decoration: none;
-}
-
-.login-btn:hover {
-    background: rgba(255, 255, 255, 0.5);
-}
-
-.logout-btn {
-    background: #d63031;
-    padding: 8px 12px;
-    border-radius: 5px;
-}
-
-/* =============================== */
-/* 📝 FORMULAIRES                 */
-/* =============================== */
-h2 {
-    color: #fff;
-    font-size: 28px;
-}
-
-/* 📄 Formulaires */
-form {
-    min-width: 300px;
-    max-width: 500px;
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    display: inline-block;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-/* ✏️ Champs et boutons */
-input, button {
-    display: block;
-    margin: 20px auto;
-    padding: 10px;
-    border-radius: 5px;
-    width: 80%;
-    max-width: 300px;
-    border: 1px solid #ccc;
-}
-
-/* 🎨 Boutons */
-button {
-    background-color: #ff7675;
-    color: white;
-    border: none;
+/* Styles du burger menu */
+.burger-menu {
+    display: none;
+    flex-direction: column;
+    justify-content: space-around;
+    width: 30px;
+    height: 25px;
     cursor: pointer;
-    font-size: 16px;
-    transition: 0.3s;
+    z-index: 100;
 }
 
-button:hover {
-    background-color: #d63031;
+.burger-menu span {
+    display: block;
+    width: 100%;
+    height: 3px;
+    background-color: white;
+    transition: all 0.3s ease;
+    border-radius: 3px;
+}
+
+/* Animation du burger menu */
+.burger-menu.active span:nth-child(1) {
+    transform: rotate(45deg) translate(8px, 8px);
+}
+
+.burger-menu.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.burger-menu.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -7px);
+}
+
+/* Media queries pour le responsive */
+@media screen and (max-width: 1024px) {
+    .burger-menu {
+        display: flex;
+    }
+
+    .nav-links {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        height: 100vh;
+        width: 100%;
+        max-width: 300px;
+        background: linear-gradient(to bottom, #ff7675, #fd79a8);
+        flex-direction: column;
+        padding-top: 80px;
+        transition: all 0.3s ease;
+        z-index: 90;
+    }
+
+    .nav-links.active {
+        right: 0;
+    }
+
+    .nav-links li {
+        margin: 15px 0;
+        width: 100%;
+        text-align: center;
+    }
+
+    .nav-links a {
+        display: block;
+        padding: 15px;
+        width: 100%;
+        font-size: 1.2em;
+    }
+
+    .nav-links a:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Ajustement du logo pour le mobile */
+    .logo h1 {
+        font-size: 32px;
+    }
+}
+
+/* Overlay quand le menu est ouvert */
+@media screen and (max-width: 1024px) {
+    .nav-links.active::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: -1;
+    }
+}
+
+/* Animation des liens */
+.nav-links a {
+    position: relative;
+    overflow: hidden;
+}
+
+.nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: white;
+    transition: width 0.3s ease;
+}
+
+.nav-links a:hover::after {
+    width: 100%;
 }
 
 /* =============================== */
-/* 👣 FOOTER                       */
+/* 👣 FOOTER                      */
 /* =============================== */
 footer {
     background: #2d3436;
@@ -237,7 +236,9 @@ footer a:hover {
     text-decoration: underline;
 }
 
-/* ✅ Message de succès */
+/* =============================== */
+/* 🎨 MESSAGES                    */
+/* =============================== */
 .success-message {
     color: #27ae60;
     background: #e9f7ef;
@@ -247,7 +248,6 @@ footer a:hover {
     margin-bottom: 15px;
 }
 
-/* ❌ Message d'erreur */
 .error-message {
     color: #c0392b;
     background: #f8d7da;
@@ -255,4 +255,42 @@ footer a:hover {
     border-radius: 5px;
     display: inline-block;
     margin-bottom: 15px;
+}
+
+.error-container {
+    text-align: center;
+    padding: 4rem 2rem;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.error-container h1 {
+    font-size: 6rem;
+    color: #dc3545;
+    margin: 0;
+}
+
+.error-container h2 {
+    font-size: 2rem;
+    color: #343a40;
+    margin: 1rem 0;
+}
+
+.error-container p {
+    color: #6c757d;
+    margin-bottom: 2rem;
+}
+
+.error-container .button {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.error-container .button:hover {
+    background-color: #0056b3;
 }

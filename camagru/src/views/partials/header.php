@@ -1,17 +1,20 @@
-<?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-?>
 <header>
     <nav>
         <div class="logo">
             <h1><a href="/">Camagru</a></h1>
         </div>
+        
+        <div class="burger-menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+
         <ul class="nav-links">
             <li><a href="/">Accueil</a></li>
             <li><a href="/gallery">Galerie</a></li>
             <?php if (isset($_SESSION['user'])): ?>
+                <li><a href="/editor">Éditeur</a></li>
                 <li><a href="/profile">Mon Profil</a></li>
                 <li><a href="/logout" class="logout-btn">Déconnexion</a></li>
             <?php else: ?>
@@ -21,3 +24,18 @@ if (session_status() === PHP_SESSION_NONE) {
         </ul>
     </nav>
 </header>
+
+<script>
+document.querySelector('.burger-menu').addEventListener('click', function() {
+    this.classList.toggle('active');
+    document.querySelector('.nav-links').classList.toggle('active');
+});
+
+// Fermer le menu quand on clique sur un lien
+document.querySelectorAll('.nav-links a').forEach(link => {
+    link.addEventListener('click', () => {
+        document.querySelector('.burger-menu').classList.remove('active');
+        document.querySelector('.nav-links').classList.remove('active');
+    });
+});
+</script>
