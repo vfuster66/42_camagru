@@ -58,6 +58,7 @@ if (!isset($_SESSION['user'])) {
 
                     <div id="preview-container">
                         <img id="upload-preview">
+                        <div id="preview-overlay-container"></div>
                     </div>
 
                     <button type="submit" class="btn">Uploader</button>
@@ -331,14 +332,23 @@ if (!isset($_SESSION['user'])) {
                 const rect = this.overlayWrapper.getBoundingClientRect();
                 const containerRect = this.container.getBoundingClientRect();
 
+                // Calculer les ratios par rapport aux dimensions de la webcam
+                const containerToWebcamRatio = WEBCAM_WIDTH / containerRect.width;
+
+                // Calculer la position relative en pourcentage par rapport au container
+                const relativeX = (this.currentX / containerRect.width) * WEBCAM_WIDTH;
+                const relativeY = (this.currentY / containerRect.height) * WEBCAM_HEIGHT;
+
+                // Ajuster l'échelle en fonction du ratio des dimensions
+                const adjustedScale = this.scale;
+
                 return {
-                    x: rect.left - containerRect.left,
-                    y: rect.top - containerRect.top,
-                    scaleX: rect.width / this.overlay.naturalWidth,
-                    scaleY: rect.height / this.overlay.naturalHeight,
+                    x: relativeX,
+                    y: relativeY,
+                    scale: adjustedScale,
                     rotation: this.rotation,
-                    width: rect.width,
-                    height: rect.height
+                    width: WEBCAM_WIDTH,
+                    height: WEBCAM_HEIGHT
                 };
             }
         }
@@ -411,25 +421,38 @@ if (!isset($_SESSION['user'])) {
             function selectFilter(filter) {
                 selectedFilter = filter;
 
+                // Mettre à jour l'indicateur visuel du filtre sélectionné
                 document.querySelectorAll('.filter-item').forEach(item => {
                     item.classList.remove('active');
                 });
-
                 const filterElement = document.querySelector(`[data-filter="${filter.id}"]`);
                 if (filterElement) {
                     filterElement.parentElement.classList.add('active');
                 }
 
+                // Initialiser ou mettre à jour le contrôleur de la webcam
                 if (!webcamOverlayController) {
-                    const overlayContainer = document.getElementById('overlay-container');
-                    webcamOverlayController = new OverlayController(overlayContainer, {
+                    webcamOverlayController = new OverlayController(document.getElementById('overlay-container'), {
                         initialScale: 1.0,
                         minScale: 0.1,
                         maxScale: 2.0
                     });
                 }
 
+                // Initialiser ou mettre à jour le contrôleur de la preview
+                if (!previewOverlayController && document.getElementById('preview-overlay-container')) {
+                    previewOverlayController = new OverlayController(document.getElementById('preview-overlay-container'), {
+                        initialScale: 1.0,
+                        minScale: 0.1,
+                        maxScale: 2.0
+                    });
+                }
+
+                // Appliquer le filtre aux deux zones
                 webcamOverlayController.setImage(filter.path);
+                if (previewOverlayController) {
+                    previewOverlayController.setImage(filter.path);
+                }
 
                 document.getElementById('capture-btn').disabled = false;
             }
@@ -449,8 +472,10 @@ if (!isset($_SESSION['user'])) {
                     tempCanvas.width = WEBCAM_WIDTH;
                     tempCanvas.height = WEBCAM_HEIGHT;
 
+                    // Dessiner la vidéo
                     tempCtx.drawImage(video, 0, 0, WEBCAM_WIDTH, WEBCAM_HEIGHT);
 
+                    // Appliquer le filtre
                     const filterImg = new Image();
                     filterImg.crossOrigin = "anonymous";
 
@@ -459,13 +484,13 @@ if (!isset($_SESSION['user'])) {
                             const transforms = webcamOverlayController.getTransformations();
 
                             tempCtx.save();
-
-                            tempCtx.translate(transforms.x + transforms.width / 2, transforms.y + transforms.height / 2);
+                            tempCtx.translate(transforms.x, transforms.y);
+                            tempCtx.translate(filterImg.width / 2, filterImg.height / 2);
                             tempCtx.rotate(transforms.rotation * Math.PI / 180);
-                            tempCtx.scale(transforms.scaleX, transforms.scaleY);
+                            tempCtx.scale(transforms.scale, transforms.scale);
+                            tempCtx.translate(-filterImg.width / 2, -filterImg.height / 2);
 
-                            tempCtx.drawImage(filterImg, -filterImg.width / 2, -filterImg.height / 2, filterImg.width, filterImg.height);
-
+                            tempCtx.drawImage(filterImg, 0, 0);
                             tempCtx.restore();
                             resolve();
                         };
@@ -505,6 +530,7 @@ if (!isset($_SESSION['user'])) {
             }
 
             const uploadForm = document.getElementById('upload-form');
+
             uploadForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
 
@@ -523,6 +549,9 @@ if (!isset($_SESSION['user'])) {
                     const tempCanvas = document.createElement('canvas');
                     const tempCtx = tempCanvas.getContext('2d');
 
+                    tempCanvas.width = WEBCAM_WIDTH;
+                    tempCanvas.height = WEBCAM_HEIGHT;
+
                     const uploadedImg = new Image();
                     uploadedImg.src = URL.createObjectURL(file);
 
@@ -530,22 +559,33 @@ if (!isset($_SESSION['user'])) {
                         uploadedImg.onload = resolve;
                     });
 
-                    tempCanvas.width = WEBCAM_WIDTH;
-                    tempCanvas.height = WEBCAM_HEIGHT;
-
+                    // Dessiner l'image uploadée
                     tempCtx.drawImage(uploadedImg, 0, 0, WEBCAM_WIDTH, WEBCAM_HEIGHT);
 
-                    const filterImg = new Image();
-                    filterImg.crossOrigin = "anonymous";
+                    // Appliquer le filtre
+                    if (previewOverlayController) {
+                        const filterImg = new Image();
+                        filterImg.crossOrigin = "anonymous";
 
-                    await new Promise((resolve, reject) => {
-                        filterImg.onload = () => {
-                            tempCtx.drawImage(filterImg, 0, 0, WEBCAM_WIDTH, WEBCAM_HEIGHT);
-                            resolve();
-                        };
-                        filterImg.onerror = reject;
-                        filterImg.src = selectedFilter.path;
-                    });
+                        await new Promise((resolve, reject) => {
+                            filterImg.onload = () => {
+                                const transforms = previewOverlayController.getTransformations();
+
+                                tempCtx.save();
+                                tempCtx.translate(transforms.x, transforms.y);
+                                tempCtx.translate(filterImg.width / 2, filterImg.height / 2);
+                                tempCtx.rotate(transforms.rotation * Math.PI / 180);
+                                tempCtx.scale(transforms.scale, transforms.scale);
+                                tempCtx.translate(-filterImg.width / 2, -filterImg.height / 2);
+
+                                tempCtx.drawImage(filterImg, 0, 0);
+                                tempCtx.restore();
+                                resolve();
+                            };
+                            filterImg.onerror = reject;
+                            filterImg.src = selectedFilter.path;
+                        });
+                    }
 
                     const imageData = tempCanvas.toDataURL('image/png');
 
@@ -586,49 +626,28 @@ if (!isset($_SESSION['user'])) {
                     return;
                 }
 
-                if (!selectedFilter) {
-                    showMessage('Veuillez d\'abord sélectionner un filtre', 'error');
-                    return;
-                }
-
                 try {
-                    const tempCanvas = document.createElement('canvas');
-                    const tempCtx = tempCanvas.getContext('2d');
+                    // Afficher l'image uploadée
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        uploadPreview.src = e.target.result;
+                        previewContainer.style.display = 'block';
 
-                    const uploadedImg = new Image();
-                    uploadedImg.src = URL.createObjectURL(file);
-
-                    await new Promise((resolve) => {
-                        uploadedImg.onload = () => {
-                            resolve();
-                        };
-                    });
-
-                    tempCanvas.width = WEBCAM_WIDTH;
-                    tempCanvas.height = WEBCAM_HEIGHT;
-
-                    tempCtx.drawImage(uploadedImg, 0, 0, WEBCAM_WIDTH, WEBCAM_HEIGHT);
-
-                    const filterImg = new Image();
-                    filterImg.crossOrigin = "anonymous";
-
-                    await new Promise((resolve, reject) => {
-                        filterImg.onload = () => {
-                            tempCtx.drawImage(filterImg, 0, 0, WEBCAM_WIDTH, WEBCAM_HEIGHT);
-                            resolve();
-                        };
-                        filterImg.onerror = (e) => {
-                            reject(e);
-                        };
-                        filterImg.src = selectedFilter.path;
-                    });
-
-                    const imageData = tempCanvas.toDataURL('image/png');
-                    uploadPreview.src = imageData;
-                    previewContainer.style.display = 'block';
+                        // Si un filtre est déjà sélectionné, l'appliquer
+                        if (selectedFilter && !previewOverlayController) {
+                            previewOverlayController = new OverlayController(document.getElementById('preview-overlay-container'), {
+                                initialScale: 1.0,
+                                minScale: 0.1,
+                                maxScale: 2.0
+                            });
+                            previewOverlayController.setImage(selectedFilter.path);
+                        }
+                    };
+                    reader.readAsDataURL(file);
 
                 } catch (err) {
                     showMessage('Erreur lors de la prévisualisation', 'error');
+                    console.error('Erreur prévisualisation:', err);
                 }
             });
 
