@@ -13,7 +13,7 @@ class Security {
 
     public static function validateImage($file) {
         $allowed = ['image/jpeg', 'image/png', 'image/gif'];
-        $maxSize = 5 * 1024 * 1024; // 5MB
+        $maxSize = 5 * 1024 * 1024;
 
         if ($file['size'] > $maxSize) {
             return false;
@@ -23,7 +23,6 @@ class Security {
             return false;
         }
 
-        // Vérification supplémentaire du type MIME
         $finfo = finfo_open(FILEINFO_MIME_TYPE);
         $mimeType = finfo_file($finfo, $file['tmp_name']);
         finfo_close($finfo);

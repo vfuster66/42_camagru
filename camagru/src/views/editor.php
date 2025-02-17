@@ -332,14 +332,11 @@ if (!isset($_SESSION['user'])) {
                 const rect = this.overlayWrapper.getBoundingClientRect();
                 const containerRect = this.container.getBoundingClientRect();
 
-                // Calculer les ratios par rapport aux dimensions de la webcam
                 const containerToWebcamRatio = WEBCAM_WIDTH / containerRect.width;
 
-                // Calculer la position relative en pourcentage par rapport au container
                 const relativeX = (this.currentX / containerRect.width) * WEBCAM_WIDTH;
                 const relativeY = (this.currentY / containerRect.height) * WEBCAM_HEIGHT;
 
-                // Ajuster l'échelle en fonction du ratio des dimensions
                 const adjustedScale = this.scale;
 
                 return {
@@ -421,7 +418,6 @@ if (!isset($_SESSION['user'])) {
             function selectFilter(filter) {
                 selectedFilter = filter;
 
-                // Mettre à jour l'indicateur visuel du filtre sélectionné
                 document.querySelectorAll('.filter-item').forEach(item => {
                     item.classList.remove('active');
                 });
@@ -430,7 +426,6 @@ if (!isset($_SESSION['user'])) {
                     filterElement.parentElement.classList.add('active');
                 }
 
-                // Initialiser ou mettre à jour le contrôleur de la webcam
                 if (!webcamOverlayController) {
                     webcamOverlayController = new OverlayController(document.getElementById('overlay-container'), {
                         initialScale: 1.0,
@@ -439,7 +434,6 @@ if (!isset($_SESSION['user'])) {
                     });
                 }
 
-                // Initialiser ou mettre à jour le contrôleur de la preview
                 if (!previewOverlayController && document.getElementById('preview-overlay-container')) {
                     previewOverlayController = new OverlayController(document.getElementById('preview-overlay-container'), {
                         initialScale: 1.0,
@@ -448,7 +442,6 @@ if (!isset($_SESSION['user'])) {
                     });
                 }
 
-                // Appliquer le filtre aux deux zones
                 webcamOverlayController.setImage(filter.path);
                 if (previewOverlayController) {
                     previewOverlayController.setImage(filter.path);
@@ -472,10 +465,8 @@ if (!isset($_SESSION['user'])) {
                     tempCanvas.width = WEBCAM_WIDTH;
                     tempCanvas.height = WEBCAM_HEIGHT;
 
-                    // Dessiner la vidéo
                     tempCtx.drawImage(video, 0, 0, WEBCAM_WIDTH, WEBCAM_HEIGHT);
 
-                    // Appliquer le filtre
                     const filterImg = new Image();
                     filterImg.crossOrigin = "anonymous";
 
@@ -559,10 +550,8 @@ if (!isset($_SESSION['user'])) {
                         uploadedImg.onload = resolve;
                     });
 
-                    // Dessiner l'image uploadée
                     tempCtx.drawImage(uploadedImg, 0, 0, WEBCAM_WIDTH, WEBCAM_HEIGHT);
 
-                    // Appliquer le filtre
                     if (previewOverlayController) {
                         const filterImg = new Image();
                         filterImg.crossOrigin = "anonymous";
@@ -627,13 +616,11 @@ if (!isset($_SESSION['user'])) {
                 }
 
                 try {
-                    // Afficher l'image uploadée
                     const reader = new FileReader();
                     reader.onload = (e) => {
                         uploadPreview.src = e.target.result;
                         previewContainer.style.display = 'block';
 
-                        // Si un filtre est déjà sélectionné, l'appliquer
                         if (selectedFilter && !previewOverlayController) {
                             previewOverlayController = new OverlayController(document.getElementById('preview-overlay-container'), {
                                 initialScale: 1.0,
@@ -658,7 +645,6 @@ if (!isset($_SESSION['user'])) {
                         throw new Error(`HTTP error! status: ${response.status}`);
                     }
                     const data = await response.json();
-                    console.log('Données miniatures reçues:', data);
 
                     if (!data.success) {
                         throw new Error(data.error || 'Erreur inconnue');
