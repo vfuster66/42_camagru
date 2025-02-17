@@ -14,24 +14,17 @@ class GalleryController {
     }
 
     public function showGallery() {
-        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-        $page = max(1, $page);
-
-        $images = $this->imageModel->getAllImages($page, $this->imagesPerPage);
+        $images = $this->imageModel->getAllImages(1, $this->imagesPerPage);
         $totalImages = $this->imageModel->getTotalImagesCount();
         $totalPages = ceil($totalImages / $this->imagesPerPage);
 
-        $pagination = [
-            'currentPage' => $page,
-            'totalPages' => $totalPages,
-            'hasNextPage' => $page < $totalPages,
-            'hasPrevPage' => $page > 1
-        ];
-
         $viewData = [
             'images' => $images,
-            'pagination' => $pagination,
-            'user' => isset($_SESSION['user']) ? $_SESSION['user'] : null
+            'pagination' => [
+                'totalPages' => $totalPages,
+                'hasMore' => $totalPages > 1
+            ],
+            'user' => $_SESSION['user'] ?? null
         ];
 
         require_once __DIR__ . '/../views/gallery.php';
@@ -39,13 +32,17 @@ class GalleryController {
 
     public function ajaxLoadImages() {
         header('Content-Type: application/json');
-        
+    
         try {
             $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+            error_log("🔍 Chargement des images pour la page : " . $page);
+    
             $images = $this->imageModel->getAllImages($page, $this->imagesPerPage);
             $totalImages = $this->imageModel->getTotalImagesCount();
             $totalPages = ceil($totalImages / $this->imagesPerPage);
-
+    
+            error_log("📸 Nombre d'images récupérées : " . count($images));
+    
             echo json_encode([
                 'success' => true,
                 'images' => $images,
@@ -56,10 +53,11 @@ class GalleryController {
                 ]
             ]);
         } catch (Exception $e) {
+            error_log("❌ Erreur ajaxLoadImages : " . $e->getMessage());
             echo json_encode([
                 'success' => false,
                 'error' => 'Erreur lors du chargement des images'
             ]);
         }
-    }
+    }    
 }

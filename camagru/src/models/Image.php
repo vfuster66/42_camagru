@@ -93,8 +93,7 @@ class Image
         }
     }
 
-    public function getAllImages($page = 1, $limit = 5)
-    {
+    public function getAllImages($page = 1, $limit = 5) {
         try {
             $offset = ($page - 1) * $limit;
             $sql = "SELECT i.*, u.username, 
@@ -104,18 +103,21 @@ class Image
                     JOIN users u ON i.user_id = u.id 
                     ORDER BY i.created_at DESC 
                     LIMIT :limit OFFSET :offset";
-
+    
             $stmt = $this->pdo->prepare($sql);
             $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
             $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
             $stmt->execute();
-
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+            $images = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            error_log("📸 Images retournées pour la page $page : " . count($images));
+    
+            return $images;
         } catch (PDOException $e) {
-            error_log("Erreur lors de la récupération des images: " . $e->getMessage());
+            error_log("❌ Erreur dans getAllImages : " . $e->getMessage());
             return false;
         }
-    }
+    }    
 
     public function deleteImage($imageId, $userId)
     {

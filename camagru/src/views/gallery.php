@@ -20,20 +20,6 @@ if (session_status() === PHP_SESSION_NONE) {
     <main class="gallery-container">
         <h1>Galerie Photos</h1>
 
-        <?php if (isset($_SESSION['success'])): ?>
-            <div class="success-message">
-                <?php echo $_SESSION['success'];
-                unset($_SESSION['success']); ?>
-            </div>
-        <?php endif; ?>
-
-        <?php if (isset($_SESSION['error'])): ?>
-            <div class="error-message">
-                <?php echo $_SESSION['error'];
-                unset($_SESSION['error']); ?>
-            </div>
-        <?php endif; ?>
-
         <div class="gallery-grid" id="gallery-grid">
             <?php foreach ($viewData['images'] as $image): ?>
                 <div class="gallery-item">
@@ -48,48 +34,21 @@ if (session_status() === PHP_SESSION_NONE) {
                             <span class="date"><?php echo date('d/m/Y', strtotime($image['created_at'])); ?></span>
                         </div>
                         <div class="interaction-buttons">
-                            <button class="like-btn <?php echo isset($_SESSION['user']) && $image['user_liked'] ? 'liked' : ''; ?>"
-                                data-image-id="<?php echo $image['id']; ?>"
-                                <?php if (!isset($_SESSION['user'])): ?>
-                                title="Connectez-vous pour liker cette photo"
-                                disabled
-                                <?php endif; ?>>
+                            <button class="like-btn"
+                                data-image-id="<?php echo $image['id']; ?>">
                                 ❤️ <span class="likes-count"><?php echo $image['likes_count']; ?></span>
                             </button>
-
                             <button class="comment-btn"
-                                data-image-id="<?php echo $image['id']; ?>"
-                                <?php if (!isset($_SESSION['user'])): ?>
-                                title="Connectez-vous pour commenter cette photo"
-                                disabled
-                                <?php endif; ?>>
+                                data-image-id="<?php echo $image['id']; ?>">
                                 💬 <span class="comments-count"><?php echo $image['comments_count']; ?></span>
                             </button>
-
                         </div>
                     </div>
                 </div>
             <?php endforeach; ?>
         </div>
 
-        <?php if ($viewData['pagination']['totalPages'] > 1): ?>
-            <div class="pagination">
-                <?php if ($viewData['pagination']['hasPrevPage']): ?>
-                    <a href="?page=<?php echo $viewData['pagination']['currentPage'] - 1; ?>" class="page-link">← Précédent</a>
-                <?php endif; ?>
-
-                <?php for ($i = 1; $i <= $viewData['pagination']['totalPages']; $i++): ?>
-                    <a href="?page=<?php echo $i; ?>"
-                        class="page-link <?php echo $i === $viewData['pagination']['currentPage'] ? 'active' : ''; ?>">
-                        <?php echo $i; ?>
-                    </a>
-                <?php endfor; ?>
-
-                <?php if ($viewData['pagination']['hasNextPage']): ?>
-                    <a href="?page=<?php echo $viewData['pagination']['currentPage'] + 1; ?>" class="page-link">Suivant →</a>
-                <?php endif; ?>
-            </div>
-        <?php endif; ?>
+        <div id="loading" class="loading">Chargement...</div>
     </main>
 
     <div id="comment-modal" class="modal">
@@ -114,16 +73,102 @@ if (session_status() === PHP_SESSION_NONE) {
     <?php include 'partials/footer.php'; ?>
 
     <script>
-    const isAuthenticated = <?php echo isset($_SESSION['user']) ? 'true' : 'false'; ?>;
-    const csrfToken = '<?php echo $_SESSION['csrf_token']; ?>';
+        const isAuthenticated = <?php echo isset($_SESSION['user']) ? 'true' : 'false'; ?>;
+        const csrfToken = '<?php echo $_SESSION['csrf_token']; ?>';
 
-    function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
 
-    document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function() {
+            const galleryContainer = document.getElementById("gallery-grid");
+            const loadingIndicator = document.getElementById("loading");
+            let page = 2; // On commence à charger la 2ème page
+            let isLoading = false;
+            let hasMoreImages = <?php echo isset($viewData['pagination']['hasMore']) ? json_encode($viewData['pagination']['hasMore']) : 'false'; ?>;
+
+            async function loadImages() {
+                if (isLoading || !hasMoreImages) return;
+                isLoading = true;
+                loadingIndicator.style.display = "block";
+
+                try {
+                    const response = await fetch(`/api/gallery/load?page=${page}`);
+                    const data = await response.json();
+
+                    if (!data.success) {
+                        console.error("Erreur lors du chargement des images");
+                        return;
+                    }
+
+                    if (data.images.length === 0) {
+                        hasMoreImages = false;
+                        loadingIndicator.style.display = "none";
+                        return;
+                    }
+
+                    data.images.forEach(image => {
+                        const imageElement = document.createElement("div");
+                        imageElement.className = "gallery-item";
+                        imageElement.innerHTML = `
+            <div class="image-container">
+                <img src="/uploads/${image.image_path}" alt="Photo par ${image.username}" loading="lazy">
+            </div>
+            <div class="image-info">
+                <div class="user-info">
+                    <span class="username">${image.username}</span>
+                    <span class="date">${new Date(image.created_at).toLocaleDateString()}</span>
+                </div>
+                <div class="interaction-buttons">
+                    <button class="like-btn" data-image-id="${image.id}">❤️ <span class="likes-count">${image.likes_count}</span></button>
+                    <button class="comment-btn" data-image-id="${image.id}">💬 <span class="comments-count">${image.comments_count}</span></button>
+                </div>
+            </div>
+        `;
+                        galleryContainer.appendChild(imageElement);
+                    });
+
+                    page++;
+                    hasMoreImages = data.pagination.hasMore;
+
+                    if (!hasMoreImages) {
+                        observer.disconnect(); // Arrête d'observer le scroll
+                        loadingIndicator.style.display = "none";
+                    }
+                } catch (error) {
+                    console.error("Erreur lors de la récupération des images :", error);
+                } finally {
+                    isLoading = false;
+                    loadingIndicator.style.display = hasMoreImages ? "block" : "none";
+                }
+            }
+
+
+            // IntersectionObserver pour détecter le scroll en bas de la galerie
+            const observer = new IntersectionObserver(entries => {
+                if (entries[0].isIntersecting) {
+                    loadImages();
+                }
+            }, {
+                root: null,
+                rootMargin: "0px",
+                threshold: 0.1
+            });
+
+            // Crée un élément invisible en bas de page pour déclencher le chargement
+            const observerTarget = document.createElement("div");
+            observerTarget.id = "observer-target";
+            galleryContainer.after(observerTarget);
+            observer.observe(observerTarget);
+
+            // Cache l'indicateur de chargement si plus d'images
+            if (!hasMoreImages) {
+                loadingIndicator.style.display = "none";
+            }
+        });
+
         if ('IntersectionObserver' in window) {
             const imageObserver = new IntersectionObserver((entries, observer) => {
                 entries.forEach(entry => {
@@ -333,8 +378,7 @@ if (session_status() === PHP_SESSION_NONE) {
                 }
             }
         });
-    });
-</script>
+    </script>
 
 </body>
 
