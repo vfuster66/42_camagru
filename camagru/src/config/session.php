@@ -2,19 +2,19 @@
 class SessionManager {
     public static function init() {
         if (session_status() === PHP_SESSION_NONE) {
-            // Configuration sécurisée des sessions
             ini_set('session.cookie_httponly', 1);
-            ini_set('session.cookie_secure', 1); // Pour HTTPS
             ini_set('session.use_strict_mode', 1);
             ini_set('session.cookie_samesite', 'Lax');
+            if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
+                ini_set('session.cookie_secure', 1);
+            }
             
             session_start();
             
-            // Régénérer l'ID de session périodiquement
             if (!isset($_SESSION['last_regeneration'])) {
                 self::regenerateSession();
             } else {
-                $interval = 60 * 30; // 30 minutes
+                $interval = 60 * 30;
                 if (time() - $_SESSION['last_regeneration'] >= $interval) {
                     self::regenerateSession();
                 }

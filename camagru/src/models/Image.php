@@ -2,29 +2,28 @@
 
 require_once __DIR__ . '/../config/database.php';
 
-class Image {
+class Image
+{
     private $pdo;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->pdo = Database::getInstance();
     }
 
-    /**
-     * Sauvegarde une nouvelle image
-     */
-    public function saveImage($userId, $imagePath) {
+    public function saveImage($userId, $imagePath)
+    {
         try {
             error_log("Tentative de sauvegarde d'image - userId: $userId, imagePath: $imagePath");
-            
-            // Récupérer les informations sur l'image
+
             $filePath = dirname(__DIR__, 2) . '/public/uploads/' . $imagePath;
             $imageInfo = getimagesize($filePath);
-            
+
             if (!$imageInfo) {
                 error_log("Impossible d'obtenir les informations de l'image");
                 return false;
             }
-    
+
             $sql = "INSERT INTO images (
                 user_id, 
                 image_path, 
@@ -44,11 +43,11 @@ class Image {
                 :height,
                 :is_public
             )";
-    
+
             $stmt = $this->pdo->prepare($sql);
-            
+
             $fileSize = filesize($filePath);
-            
+
             $params = [
                 'user_id' => $userId,
                 'image_path' => $imagePath,
@@ -59,16 +58,16 @@ class Image {
                 'height' => $imageInfo[1],
                 'is_public' => true
             ];
-    
+
             error_log("Paramètres de la requête: " . print_r($params, true));
-            
+
             $result = $stmt->execute($params);
-            
+
             if (!$result) {
                 error_log("Erreur SQL: " . print_r($stmt->errorInfo(), true));
                 return false;
             }
-            
+
             error_log("Image sauvegardée avec succès !");
             return true;
         } catch (PDOException $e) {
@@ -78,10 +77,8 @@ class Image {
         }
     }
 
-    /**
-     * Récupère une image par son ID
-     */
-    public function getImageById($imageId) {
+    public function getImageById($imageId)
+    {
         try {
             $sql = "SELECT i.*, u.username 
                     FROM images i 
@@ -96,10 +93,8 @@ class Image {
         }
     }
 
-    /**
-     * Récupère toutes les images pour la galerie avec pagination
-     */
-    public function getAllImages($page = 1, $limit = 5) {
+    public function getAllImages($page = 1, $limit = 5)
+    {
         try {
             $offset = ($page - 1) * $limit;
             $sql = "SELECT i.*, u.username, 
@@ -109,12 +104,12 @@ class Image {
                     JOIN users u ON i.user_id = u.id 
                     ORDER BY i.created_at DESC 
                     LIMIT :limit OFFSET :offset";
-            
+
             $stmt = $this->pdo->prepare($sql);
             $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
             $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
             $stmt->execute();
-            
+
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             error_log("Erreur lors de la récupération des images: " . $e->getMessage());
@@ -122,12 +117,10 @@ class Image {
         }
     }
 
-    /**
-     * Supprime une image
-     */
-    public function deleteImage($imageId, $userId) {
+    public function deleteImage($imageId, $userId)
+    {
         try {
-            // Vérifie que l'utilisateur est bien le propriétaire de l'image
+
             $sql = "DELETE FROM images WHERE id = :id AND user_id = :user_id";
             $stmt = $this->pdo->prepare($sql);
             return $stmt->execute([
@@ -140,10 +133,8 @@ class Image {
         }
     }
 
-    /**
-     * Récupère le nombre total d'images
-     */
-    public function getTotalImagesCount() {
+    public function getTotalImagesCount()
+    {
         try {
             $sql = "SELECT COUNT(*) FROM images";
             $stmt = $this->pdo->query($sql);
@@ -153,7 +144,9 @@ class Image {
             return 0;
         }
     }
-    public function getImagesByUserId($userId) {
+
+    public function getImagesByUserId($userId)
+    {
         try {
             $sql = "SELECT * FROM images WHERE user_id = :user_id ORDER BY created_at DESC";
             $stmt = $this->pdo->prepare($sql);
@@ -162,6 +155,19 @@ class Image {
         } catch (PDOException $e) {
             error_log("Erreur lors de la récupération des images: " . $e->getMessage());
             return false;
+        }
+    }
+
+    public function getUserImagesCount($userId)
+    {
+        try {
+            $sql = "SELECT COUNT(*) FROM images WHERE user_id = ?";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$userId]);
+            return $stmt->fetchColumn();
+        } catch (PDOException $e) {
+            error_log("Erreur dans getUserImagesCount: " . $e->getMessage());
+            return 0;
         }
     }
 }

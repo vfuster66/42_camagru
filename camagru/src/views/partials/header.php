@@ -31,7 +31,6 @@ document.querySelector('.burger-menu').addEventListener('click', function() {
     document.querySelector('.nav-links').classList.toggle('active');
 });
 
-// Fermer le menu quand on clique sur un lien
 document.querySelectorAll('.nav-links a').forEach(link => {
     link.addEventListener('click', () => {
         document.querySelector('.burger-menu').classList.remove('active');

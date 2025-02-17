@@ -22,18 +22,16 @@ if (session_status() === PHP_SESSION_NONE) {
     <main>
         <h2>Inscription</h2>
 
-        <!-- Message de succès -->
         <?php if (isset($_SESSION['success'])): ?>
             <p class="success-message"><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></p>
         <?php endif; ?>
 
-        <!-- Message d'erreur -->
         <?php if (isset($_SESSION['error'])): ?>
             <p class="error-message"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></p>
         <?php endif; ?>
 
         <form action="/register_action" method="POST">
-             <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
             <input type="text" name="username" placeholder="Nom d'utilisateur" required>
             <input type="email" name="email" placeholder="Email" required>
             <input type="password" name="password" placeholder="Mot de passe" required>

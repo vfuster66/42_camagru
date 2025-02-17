@@ -85,7 +85,7 @@ input {
     padding: 12px;
     border-radius: 5px;
     width: 100%;
-    max-width: 350px;
+    max-width: 300px;
     border: 1px solid #ccc;
     font-size: 16px;
 }
@@ -124,4 +124,105 @@ form + p a {
 
 form + p a:hover {
     text-decoration: underline;
+}
+
+.auth-form {
+    margin-bottom: 10px;
+}
+
+/* Media Queries */
+@media screen and (max-width: 768px) {
+    .auth-container {
+        width: 70%;
+        margin: 1rem auto;
+        padding: 1.5rem;
+    }
+
+    form {
+        min-width: unset;
+        width: 100%;
+        padding: 15px;
+    }
+
+    input {
+        max-width: 100%;
+    }
+
+    button {
+        max-width: 100%;
+    }
+}
+
+@media screen and (max-width: 576px) {
+    .auth-container {
+        margin: 0.5rem auto;
+        width: 98%;
+    }
+
+    .verification-notice {
+        font-size: 14px;
+        padding: 12px 15px;
+    }
+
+    .loading-message {
+        margin: 1rem 0;
+        font-size: 14px;
+    }
+
+    .register-btn,
+    .login-btn,
+    .logout-btn {
+        font-size: 14px;
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+@media screen and (max-width: 280px) {
+    .auth-container {
+        padding: 1rem;
+    }
+
+    form {
+        padding: 10px;
+    }
+
+    input,
+    button {
+        font-size: 14px;
+    }
+}
+
+/* Optimisations tactiles */
+@media (hover: none) {
+    button,
+    input[type="submit"],
+    .register-btn,
+    .login-btn,
+    .logout-btn {
+        min-height: 44px;
+    }
+
+    form + p a {
+        padding: 8px;
+        display: inline-block;
+    }
+}
+
+/* Mode paysage */
+@media screen and (orientation: landscape) and (max-height: 500px) {
+    .auth-container {
+        margin: 0.5rem auto;
+    }
+
+    form {
+        padding: 10px;
+    }
+
+    .loading-message,
+    .verification-notice {
+        margin: 0.5rem 0;
+    }
 }

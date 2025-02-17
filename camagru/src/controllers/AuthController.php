@@ -25,58 +25,48 @@ class AuthController
         $this->userModel = new User();
     }
 
-    // ✅ Nouvelle méthode pour récupérer `userModel`
     public function getUserModel()
     {
         return $this->userModel;
     }
 
-    /**
-     * Gère l'inscription d'un utilisateur
-     */
     public function register()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Vérification du token CSRF
+
             if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
                 die("Erreur CSRF, requête invalide.");
             }
 
-            // Nettoyage des entrées utilisateur
             $username = htmlspecialchars(trim($_POST['username']), ENT_QUOTES, 'UTF-8');
             $email = filter_var(trim($_POST['email']), FILTER_SANITIZE_EMAIL);
             $password = $_POST['password'];
             $confirmPassword = $_POST['confirm_password'];
 
-            // Vérification des champs vides
             if (empty($username) || empty($email) || empty($password) || empty($confirmPassword)) {
                 $_SESSION['error'] = "Tous les champs sont obligatoires.";
                 header("Location: /register");
                 exit;
             }
 
-            // Vérification de l'email
             if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 $_SESSION['error'] = "Email invalide.";
                 header("Location: /register");
                 exit;
             }
 
-            // Vérification du mot de passe sécurisé
             if (!preg_match('/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/', $password)) {
                 $_SESSION['error'] = "Le mot de passe doit contenir au moins 8 caractères, une majuscule, un chiffre et un caractère spécial.";
                 header("Location: /register");
                 exit;
             }
 
-            // Vérification que les mots de passe correspondent
             if ($password !== $confirmPassword) {
                 $_SESSION['error'] = "Les mots de passe ne correspondent pas.";
                 header("Location: /register");
                 exit;
             }
 
-            // Vérification si l'utilisateur existe déjà
             if ($this->userModel->getUserByEmail($email)) {
                 $_SESSION['error'] = "Cet email est déjà utilisé.";
                 header("Location: /register");
@@ -84,13 +74,11 @@ class AuthController
             }
 
             try {
-                // Création de l'utilisateur
                 $result = $this->userModel->createUser($username, $email, $password);
                 if (!$result) {
                     throw new Exception("Erreur lors de la création de l'utilisateur");
                 }
 
-                // Configuration du mail
                 $mail = new PHPMailer(true);
                 $mail->isSMTP();
                 $mail->Host = 'smtp.gmail.com';
@@ -101,16 +89,13 @@ class AuthController
                 $mail->Port = 587;
                 $mail->CharSet = 'UTF-8';
 
-                // Configuration des destinataires
                 $mail->setFrom('no-reply@camagru.com', 'Camagru');
                 $mail->addAddress($email, $username);
 
-                // Configuration du contenu
                 $mail->isHTML(true);
                 $mail->Subject = "Vérification de votre compte Camagru";
                 $verificationLink = "http://localhost:8080/verify_email?token=" . $result['verification_token'];
 
-                // Corps du mail avec plus de détails
                 $mail->Body = "
                 <h2>Bienvenue sur Camagru, {$username} !</h2>
                 <p>Merci de votre inscription. Pour activer votre compte, veuillez cliquer sur le lien ci-dessous :</p>
@@ -119,7 +104,6 @@ class AuthController
                 <p>Si vous n'avez pas créé de compte sur Camagru, vous pouvez ignorer cet email.</p>
             ";
 
-                // Version texte pour les clients mail qui ne supportent pas l'HTML
                 $mail->AltBody = "
                 Bienvenue sur Camagru, {$username} !
                 Pour activer votre compte, copiez et collez ce lien dans votre navigateur :
@@ -129,7 +113,6 @@ class AuthController
 
                 $mail->send();
 
-                // Message de succès détaillé
                 $_SESSION['success'] = "Inscription réussie ! Un email de confirmation a été envoyé à {$email}. 
                                 Veuillez cliquer sur le lien dans l'email pour activer votre compte.
                                 N'oubliez pas de vérifier vos spams si vous ne trouvez pas l'email.";
@@ -145,14 +128,10 @@ class AuthController
         }
     }
 
-    /**
-     * Gère la connexion d'un utilisateur
-     */
     public function login()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-            // Vérification du token CSRF
             if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
                 die("Erreur CSRF, requête invalide.");
             }
@@ -174,17 +153,12 @@ class AuthController
         }
     }
 
-    /**
-     * Gère la réinitialisation du mot de passe (forgot password)
-     */
-
     public function forgotPassword()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             error_log("DEBUG: Requête reçue pour forgotPassword");
 
-            // Vérification CSRF
             if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
                 error_log("❌ ERREUR: CSRF token invalide !");
                 die("Erreur CSRF, requête invalide.");
@@ -208,14 +182,11 @@ class AuthController
                 exit;
             }
 
-            // Générer un token unique
             $token = bin2hex(random_bytes(50));
             error_log("DEBUG: Token généré -> " . $token);
 
-            // Stocker le token en base
             $this->userModel->storeResetToken($email, $token);
 
-            // Vérifier si le token est bien enregistré en base
             $storedToken = $this->userModel->getUserByToken($token);
             if (!$storedToken) {
                 error_log("❌ ERREUR: Le token n'a pas été enregistré correctement !");
@@ -223,7 +194,6 @@ class AuthController
                 error_log("✅ SUCCÈS: Token enregistré en base.");
             }
 
-            // **Configuration SMTP avec Gmail**
             $mail = new PHPMailer(true);
             try {
                 $mail->isSMTP();
@@ -234,17 +204,14 @@ class AuthController
                 $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
                 $mail->Port = 587;
 
-                // Destinataire
                 $mail->setFrom('no-reply@camagru.com', 'Camagru');
                 $mail->addAddress($email);
 
-                // Contenu du mail
                 $mail->isHTML(true);
                 $mail->Subject = "Réinitialisation de votre mot de passe";
                 $mail->Body = "Cliquez sur ce lien pour réinitialiser votre mot de passe : 
                     <a href='http://localhost:8080/reset_password?token=$token'>Réinitialiser mon mot de passe</a>";
 
-                // Envoyer l'email
                 $mail->send();
                 error_log("✅ SUCCÈS: Email envoyé avec le token.");
 
@@ -260,13 +227,10 @@ class AuthController
         }
     }
 
-    /**
-     * Gère la modification du mot de passe
-     */
     public function resetPassword()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Vérification du token CSRF
+
             if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
                 die("Erreur CSRF, requête invalide.");
             }
@@ -275,7 +239,6 @@ class AuthController
             $newPassword = $_POST['new_password'];
             $confirmPassword = $_POST['confirm_password'];
 
-            // Vérification des mots de passe
             if (!preg_match('/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/', $newPassword)) {
                 $_SESSION['error'] = "Le mot de passe doit contenir au moins 8 caractères, une majuscule, un chiffre et un caractère spécial.";
                 header("Location: /reset_password?token=" . $token);
@@ -308,16 +271,12 @@ class AuthController
         }
     }
 
-    /**
-     * Gère la déconnexion
-     */
     public function logout()
     {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
 
-        // Détruire la session et le cookie de session
         $_SESSION = [];
         session_destroy();
 
@@ -328,24 +287,20 @@ class AuthController
         header("Location: /login");
         exit;
     }
+
     public function verifyEmail() 
     {
         error_log("=== Début de la vérification d'email ===");
-        
+    
         try {
-            // Vérification de la présence du token
-            error_log("Vérification du token dans l'URL...");
             if (!isset($_GET['token'])) {
                 error_log("❌ Token manquant dans l'URL");
                 throw new Exception("Token de vérification manquant.");
             }
     
-            // Récupération et nettoyage du token
             $token = htmlspecialchars(trim($_GET['token']));
             error_log("Token reçu: " . $token);
     
-            // Récupération de l'utilisateur
-            error_log("Recherche de l'utilisateur avec ce token...");
             $user = $this->userModel->getUserByVerificationToken($token);
     
             if (!$user) {
@@ -354,40 +309,40 @@ class AuthController
             }
     
             error_log("✅ Utilisateur trouvé: " . json_encode($user));
-    
-            // Vérification de l'expiration du token (24h)
-            error_log("Vérification de l'expiration du token...");
+
             $tokenCreationTime = strtotime($user['created_at']);
             $timeDiff = time() - $tokenCreationTime;
             error_log("Temps écoulé depuis la création: " . $timeDiff . " secondes");
-            
+    
             if ($timeDiff > 24 * 3600) {
                 error_log("❌ Token expiré");
                 throw new Exception("Le lien de vérification a expiré. Veuillez vous réinscrire.");
             }
     
-            // Vérification du compte
             error_log("Tentative de vérification du compte...");
-            $verificationResult = $this->userModel->verifyUser($token);
-            error_log("Résultat de la vérification: " . ($verificationResult ? "Succès" : "Échec"));
+            $verificationSuccess = $this->userModel->verifyUser($token);
+            error_log("Résultat de la vérification: " . ($verificationSuccess ? "Succès" : "Échec"));
     
-            if (!$verificationResult) {
+            if (!$verificationSuccess) {
                 error_log("❌ Échec de la mise à jour en base de données");
                 throw new Exception("Erreur lors de la vérification du compte.");
             }
     
-            // Succès
-            error_log("✅ Vérification réussie!");
-            $_SESSION['success'] = "Votre compte a été vérifié avec succès. Vous pouvez maintenant vous connecter.";
+            session_unset();
+            session_destroy();
+            session_start();
+    
+            $_SESSION['success'] = "Votre email a été vérifié avec succès. Vous pouvez maintenant vous connecter.";
+    
+            error_log("✅ Vérification réussie! Redirection vers login.");
             
         } catch (Exception $e) {
             error_log("❌ ERREUR: " . $e->getMessage());
-            error_log("Trace: " . $e->getTraceAsString());
             $_SESSION['error'] = $e->getMessage();
         }
     
         error_log("=== Fin de la vérification d'email ===");
-        header('Location: /verify_email');
+        header('Location: /login');
         exit;
-    }
+    }    
 }

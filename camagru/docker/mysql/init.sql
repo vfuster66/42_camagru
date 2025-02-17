@@ -1,17 +1,14 @@
--- Création de la base de données avec encodage UTF-8
 CREATE DATABASE IF NOT EXISTS camagru
 CHARACTER SET utf8mb4
 COLLATE utf8mb4_unicode_ci;
 
 USE camagru;
 
--- Suppression des tables existantes dans l'ordre pour respecter les contraintes de clés étrangères
 DROP TABLE IF EXISTS likes;
 DROP TABLE IF EXISTS comments;
 DROP TABLE IF EXISTS images;
 DROP TABLE IF EXISTS users;
 
--- Table utilisateurs avec contraintes de sécurité renforcées
 CREATE TABLE users (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
@@ -33,7 +30,6 @@ CREATE TABLE users (
     CONSTRAINT chk_email CHECK (email REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$')
 ) ENGINE=InnoDB;
 
--- Table images avec gestion des métadonnées
 CREATE TABLE images (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     user_id INT UNSIGNED NOT NULL,
@@ -50,7 +46,6 @@ CREATE TABLE images (
     CONSTRAINT chk_mime_type CHECK (mime_type IN ('image/jpeg', 'image/png', 'image/gif'))
 ) ENGINE=InnoDB;
 
--- Table commentaires avec modération
 CREATE TABLE comments (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     image_id INT UNSIGNED NOT NULL,
@@ -65,7 +60,6 @@ CREATE TABLE comments (
     CONSTRAINT chk_content CHECK (LENGTH(content) >= 1 AND LENGTH(content) <= 1000)
 ) ENGINE=InnoDB;
 
--- Table likes avec horodatage
 CREATE TABLE likes (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     image_id INT UNSIGNED NOT NULL,
@@ -76,7 +70,6 @@ CREATE TABLE likes (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- Index pour optimiser les requêtes fréquentes
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_username ON users(username);
 CREATE INDEX idx_images_user_id ON images(user_id);

@@ -5,7 +5,6 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once __DIR__ . '/../controllers/AuthController.php';
 require_once __DIR__ . '/../config/csrf.php';
 
-// Vérification du token
 if (!isset($_GET['token']) || empty($_GET['token'])) {
     $_SESSION['error'] = "Token manquant ou invalide.";
     header("Location: /forgot_password");

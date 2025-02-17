@@ -1,21 +1,13 @@
 <?php
 
-/**
- * Point d'entrée de l'application
- * Gère le routage et l'initialisation
- */
-
-// Démarrage de la session sécurisée
 require_once __DIR__ . '/../src/config/session.php';
 SessionManager::init();
 
-// Gestion des erreurs
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 ini_set('error_log', __DIR__ . '/../logs/error.log');
 
-// Chargement automatique des classes
 spl_autoload_register(function ($class) {
     $paths = [
         __DIR__ . '/../src/controllers/',
@@ -35,29 +27,30 @@ spl_autoload_register(function ($class) {
     error_log("Classe non trouvée: $class");
 });
 
-// Initialisation des contrôleurs
 try {
     $authController = new AuthController();
     $imageController = new ImageController();
+    $galleryController = new GalleryController();
+    $likeController = new LikeController();
+    $commentController = new CommentController();
+    $userController = new UserController();
 } catch (Exception $e) {
     error_log("Erreur d'initialisation des contrôleurs: " . $e->getMessage());
     die("Une erreur est survenue");
 }
 
-// Configuration des routes protégées
 $protectedRoutes = [
     '/editor' => ['auth' => true, 'verified' => true],
     '/profile' => ['auth' => true, 'verified' => true],
     '/upload-image' => ['auth' => true, 'verified' => true],
     '/capture-image' => ['auth' => true, 'verified' => true],
     '/delete-image' => ['auth' => true, 'verified' => true],
-    '/api/user-images' => ['auth' => true, 'verified' => true]
+    '/api/user-images' => ['auth' => true, 'verified' => true],
+    '/toggle-like' => ['auth' => true, 'verified' => true]
 ];
 
-// Récupération de l'URL demandée
 $request = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-// Vérification des permissions pour les routes protégées
 if (isset($protectedRoutes[$request])) {
     if ($protectedRoutes[$request]['auth']) {
         AuthMiddleware::requireAuth();
@@ -67,10 +60,8 @@ if (isset($protectedRoutes[$request])) {
     }
 }
 
-// Gestion des routes
 try {
     switch ($request) {
-            // Routes publiques
         case '/':
             require __DIR__ . '/../src/views/home.php';
             break;
@@ -99,7 +90,6 @@ try {
             $authController->verifyEmail();
             break;
 
-            // Routes d'authentification
         case '/register_action':
             $authController->register();
             break;
@@ -121,7 +111,23 @@ try {
             break;
 
         case '/profile':
-            require __DIR__ . '/../src/views/profile.php';
+            $userController->showProfile();
+            break;
+            
+        case '/update-username':
+            $userController->updateUsername();
+            break;
+            
+        case '/update-email':
+            $userController->updateEmail();
+            break;
+            
+        case '/update-password':
+            $userController->updatePassword();
+            break;
+            
+        case '/update-notifications':
+            $userController->updateNotificationPreferences();
             break;
 
         case '/editor':
@@ -153,7 +159,39 @@ try {
             $imageController->deleteImage();
             break;
 
-            // Pages d'erreur
+        case '/gallery':
+            $galleryController->showGallery();
+            break;
+
+        case '/api/gallery/load':
+            header('Content-Type: application/json');
+            $galleryController->ajaxLoadImages();
+            break;
+
+        case '/toggle-like':
+            header('Content-Type: application/json');
+            $likeController->toggleLike();
+            break;
+
+        case '/comments':
+            $commentController = new CommentController();
+            $commentController->getComments();
+            break;
+
+        case '/add-comment':
+            $commentController = new CommentController();
+            $commentController->addComment();
+            break;
+
+        case '/delete-comment':
+            $commentController = new CommentController();
+            $commentController->deleteComment();
+            break;
+
+        case '/delete-account':
+            $userController->deleteAccount();
+            break;
+
         default:
             header("HTTP/1.0 404 Not Found");
             require __DIR__ . '/../src/views/404.php';

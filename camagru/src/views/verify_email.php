@@ -48,7 +48,6 @@ if (session_status() === PHP_SESSION_NONE) {
     <?php include 'partials/footer.php'; ?>
 
     <script>
-        // Si on est sur la page de chargement, rediriger vers la vérification
         if (document.querySelector('.loading-message')) {
             const urlParams = new URLSearchParams(window.location.search);
             const token = urlParams.get('token');
