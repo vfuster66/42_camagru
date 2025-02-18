@@ -11,6 +11,8 @@ require_once __DIR__ . '/../config/csrf.php';
     <title>Mot de passe oublié</title>
     <link rel="stylesheet" href="/assets/css/style.css">
     <link rel="stylesheet" href="/assets/css/auth.css">
+    <link rel="icon" type="image/x-icon" href="/assets/images/favicon.ico">
+
 </head>
 <body>
 

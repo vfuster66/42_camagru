@@ -21,6 +21,8 @@ if (!isset($_SESSION['user'])) {
     <title>Éditeur Photo - Camagru</title>
     <link rel="stylesheet" href="/assets/css/style.css">
     <link rel="stylesheet" href="/assets/css/editor.css">
+    <link rel="icon" type="image/x-icon" href="/assets/images/favicon.ico">
+
 </head>
 
 <body>

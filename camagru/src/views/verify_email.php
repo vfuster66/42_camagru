@@ -10,6 +10,7 @@ if (session_status() === PHP_SESSION_NONE) {
     <title>Vérification du compte - Camagru</title>
     <link rel="stylesheet" href="/assets/css/style.css">
     <link rel="stylesheet" href="/assets/css/auth.css">
+    <link rel="icon" type="image/x-icon" href="/assets/images/favicon.ico">
 </head>
 <body>
     <?php include 'partials/header.php'; ?>

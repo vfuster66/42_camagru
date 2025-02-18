@@ -18,6 +18,7 @@ if (!isset($_GET['token']) || empty($_GET['token'])) {
     <title>Réinitialisation du mot de passe</title>
     <link rel="stylesheet" href="/assets/css/style.css">
     <link rel="stylesheet" href="/assets/css/auth.css">
+    <link rel="icon" type="image/x-icon" href="/assets/images/favicon.ico">
 </head>
 <body>
     <?php include 'partials/header.php'; ?>

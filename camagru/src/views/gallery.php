@@ -26,6 +26,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
     <title>Galerie - Camagru</title>
     <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="icon" type="image/x-icon" href="/assets/images/favicon.ico">
     <link rel="stylesheet" href="/assets/css/gallery.css">
     <script src="https://kit.fontawesome.com/4193962862.js" crossorigin="anonymous"></script>
 </head>
