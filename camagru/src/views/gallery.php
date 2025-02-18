@@ -3,15 +3,31 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="fr">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <?php
+
+    $ngrok_url = "https://b408-91-151-126-62.ngrok-free.app";
+    $currentImagePath = isset($viewData['images'][0]['image_path']) ? $viewData['images'][0]['image_path'] : '';
+    $currentUrl = $ngrok_url . "/uploads/" . $currentImagePath;
+    ?>
+
+    <meta property="og:title" content="✨ Découvrez ma création sur Camagru !">
+    <meta property="og:description" content="Une superbe création partagée via Camagru">
+    <meta property="og:image" content="<?php echo $currentUrl; ?>">
+    <meta property="og:url" content="<?php echo $currentUrl; ?>">
+    <meta property="og:type" content="article">
+
     <title>Galerie - Camagru</title>
     <link rel="stylesheet" href="/assets/css/style.css">
     <link rel="stylesheet" href="/assets/css/gallery.css">
+    <script src="https://kit.fontawesome.com/4193962862.js" crossorigin="anonymous"></script>
 </head>
 
 <body>
@@ -33,18 +49,38 @@ if (session_status() === PHP_SESSION_NONE) {
                             <span class="username"><?php echo htmlspecialchars($image['username']); ?></span>
                             <span class="date"><?php echo date('d/m/Y', strtotime($image['created_at'])); ?></span>
                         </div>
-                        <div class="interaction-buttons">
-                            <button class="like-btn"
-                                data-image-id="<?php echo $image['id']; ?>">
-                                ❤️ <span class="likes-count"><?php echo $image['likes_count']; ?></span>
-                            </button>
-                            <button class="comment-btn"
-                                data-image-id="<?php echo $image['id']; ?>">
-                                💬 <span class="comments-count"><?php echo $image['comments_count']; ?></span>
-                            </button>
+
+                        <div class="interaction-container">
+                            <div class="interaction-buttons">
+                                <!-- Like -->
+                                <button class="like-btn" data-image-id="<?php echo $image['id']; ?>">
+                                    <i class="fa-solid fa-heart"></i> <span class="likes-count"><?php echo $image['likes_count']; ?></span>
+                                </button>
+
+                                <!-- Commentaire -->
+                                <button class="comment-btn" data-image-id="<?php echo $image['id']; ?>">
+                                    <i class="fa-regular fa-comment-dots"></i> <span class="comments-count"><?php echo $image['comments_count']; ?></span>
+                                </button>
+
+                                <!-- Suppression -->
+                                <?php if (isset($_SESSION['user']) && $_SESSION['user']['id'] === $image['user_id']): ?>
+                                    <button class="delete-image-btn" data-id="<?php echo $image['id']; ?>">
+                                        <i class="fa-regular fa-trash-can"></i>
+                                    </button>
+                                <?php endif; ?>
+
+                                <!-- Partage sur Facebook -->
+                                <button class="share-btn facebook" onclick="shareOnFacebook('<?php echo htmlspecialchars($image['image_path']); ?>')" data-image-path="<?php echo htmlspecialchars($image['image_path']); ?>">
+                                    <i class="fa-brands fa-facebook"></i>
+                                </button>
+
+                            </div>
                         </div>
+
                     </div>
                 </div>
+
+
             <?php endforeach; ?>
         </div>
 
@@ -85,7 +121,7 @@ if (session_status() === PHP_SESSION_NONE) {
         document.addEventListener('DOMContentLoaded', function() {
             const galleryContainer = document.getElementById("gallery-grid");
             const loadingIndicator = document.getElementById("loading");
-            let page = 2; // On commence à charger la 2ème page
+            let page = 2;
             let isLoading = false;
             let hasMoreImages = <?php echo isset($viewData['pagination']['hasMore']) ? json_encode($viewData['pagination']['hasMore']) : 'false'; ?>;
 
@@ -113,20 +149,33 @@ if (session_status() === PHP_SESSION_NONE) {
                         const imageElement = document.createElement("div");
                         imageElement.className = "gallery-item";
                         imageElement.innerHTML = `
-            <div class="image-container">
-                <img src="/uploads/${image.image_path}" alt="Photo par ${image.username}" loading="lazy">
-            </div>
-            <div class="image-info">
-                <div class="user-info">
-                    <span class="username">${image.username}</span>
-                    <span class="date">${new Date(image.created_at).toLocaleDateString()}</span>
-                </div>
-                <div class="interaction-buttons">
-                    <button class="like-btn" data-image-id="${image.id}">❤️ <span class="likes-count">${image.likes_count}</span></button>
-                    <button class="comment-btn" data-image-id="${image.id}">💬 <span class="comments-count">${image.comments_count}</span></button>
-                </div>
-            </div>
-        `;
+                            <div class="image-container">
+                                <img src="/uploads/${image.image_path}" alt="Photo par ${image.username}" loading="lazy">
+                            </div>
+                            <div class="image-info">
+                                <div class="user-info">
+                                    <span class="username">${image.username}</span>
+                                    <span class="date">${new Date(image.created_at).toLocaleDateString()}</span>
+                                </div>
+                                <div class="interaction-container">
+                                    <div class="interaction-buttons">
+                                        <button class="like-btn" data-image-id="${image.id}">
+                                            <i class="fa-solid fa-heart"></i> <span class="likes-count">${image.likes_count}</span>
+                                        </button>
+                                        <button class="comment-btn" data-image-id="${image.id}">
+                                            <i class="fa-regular fa-comment-dots"></i> <span class="comments-count">${image.comments_count}</span>
+                                        </button>
+                                        ${isAuthenticated && image.user_id === <?php echo $_SESSION['user']['id'] ?? 'null'; ?> ? 
+                                            `<button class="delete-image-btn" data-id="${image.id}">
+                                                <i class="fa-regular fa-trash-can"></i>
+                                            </button>` : ''}
+                                        <button class="share-btn facebook" onclick="shareOnFacebook('${image.image_path}')">
+                                            <i class="fa-brands fa-facebook"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
                         galleryContainer.appendChild(imageElement);
                     });
 
@@ -134,9 +183,12 @@ if (session_status() === PHP_SESSION_NONE) {
                     hasMoreImages = data.pagination.hasMore;
 
                     if (!hasMoreImages) {
-                        observer.disconnect(); // Arrête d'observer le scroll
+                        observer.disconnect();
                         loadingIndicator.style.display = "none";
                     }
+
+                    attachEventListeners();
+
                 } catch (error) {
                     console.error("Erreur lors de la récupération des images :", error);
                 } finally {
@@ -145,8 +197,6 @@ if (session_status() === PHP_SESSION_NONE) {
                 }
             }
 
-
-            // IntersectionObserver pour détecter le scroll en bas de la galerie
             const observer = new IntersectionObserver(entries => {
                 if (entries[0].isIntersecting) {
                     loadImages();
@@ -157,13 +207,11 @@ if (session_status() === PHP_SESSION_NONE) {
                 threshold: 0.1
             });
 
-            // Crée un élément invisible en bas de page pour déclencher le chargement
             const observerTarget = document.createElement("div");
             observerTarget.id = "observer-target";
             galleryContainer.after(observerTarget);
             observer.observe(observerTarget);
 
-            // Cache l'indicateur de chargement si plus d'images
             if (!hasMoreImages) {
                 loadingIndicator.style.display = "none";
             }
@@ -378,6 +426,96 @@ if (session_status() === PHP_SESSION_NONE) {
                 }
             }
         });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.delete-image-btn').forEach(button => {
+                button.addEventListener('click', async function() {
+                    if (!confirm('Voulez-vous vraiment supprimer cette image ?')) return;
+
+                    const imageId = this.dataset.imageId;
+                    const imageElement = this.closest('.gallery-item');
+
+                    try {
+                        const formData = new FormData();
+                        formData.append('image_id', imageId);
+                        formData.append('csrf_token', '<?php echo $_SESSION["csrf_token"]; ?>');
+
+                        const response = await fetch('/delete-image', {
+                            method: 'POST',
+                            body: formData
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            imageElement.remove();
+                        } else {
+                            alert('Erreur lors de la suppression de l\'image.');
+                        }
+                    } catch (error) {
+                        console.error('Erreur:', error);
+                        alert('Une erreur est survenue.');
+                    }
+                });
+            });
+        });
+
+        const ngrokUrl = "https://b408-91-151-126-62.ngrok-free.app";
+
+        function constructShareUrl(imagePath) {
+            return `${ngrokUrl}/uploads/${imagePath}`;
+        }
+
+        function shareOnFacebook(imagePath) {
+            const shareUrl = constructShareUrl(imagePath);
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`, '_blank');
+        }
+
+        function attachEventListeners() {
+            document.querySelectorAll('.delete-image-btn').forEach(button => {
+                button.removeEventListener('click', handleDeleteImage);
+                button.addEventListener('click', handleDeleteImage);
+            });
+
+            document.querySelectorAll('.share-btn.facebook').forEach(button => {
+                button.removeEventListener('click', handleFacebookShare);
+                button.addEventListener('click', handleFacebookShare);
+            });
+        }
+
+        async function handleDeleteImage(event) {
+            if (!confirm('Voulez-vous vraiment supprimer cette image ?')) return;
+
+            const imageId = event.currentTarget.dataset.id;
+            const imageElement = event.currentTarget.closest('.gallery-item');
+
+            try {
+                const formData = new FormData();
+                formData.append('image_id', imageId);
+                formData.append('csrf_token', csrfToken);
+
+                const response = await fetch('/delete-image', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    imageElement.remove();
+                } else {
+                    alert('Erreur lors de la suppression de l\'image.');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Une erreur est survenue.');
+            }
+        }
+
+        function handleFacebookShare(event) {
+            const imagePath = event.currentTarget.dataset.imagePath;
+            shareOnFacebook(imagePath);
+        }
     </script>
 
 </body>

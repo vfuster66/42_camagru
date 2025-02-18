@@ -1,4 +1,10 @@
 <?php
+require_once __DIR__ . '/../vendor/autoload.php';
+
+use Dotenv\Dotenv;
+
+$dotenv = Dotenv::createImmutable(dirname(__DIR__));
+$dotenv->load();
 
 require_once __DIR__ . '/../src/config/session.php';
 SessionManager::init();
@@ -113,19 +119,19 @@ try {
         case '/profile':
             $userController->showProfile();
             break;
-            
+
         case '/update-username':
             $userController->updateUsername();
             break;
-            
+
         case '/update-email':
             $userController->updateEmail();
             break;
-            
+
         case '/update-password':
             $userController->updatePassword();
             break;
-            
+
         case '/update-notifications':
             $userController->updateNotificationPreferences();
             break;
@@ -186,6 +192,11 @@ try {
         case '/delete-comment':
             $commentController = new CommentController();
             $commentController->deleteComment();
+            break;
+
+        case '/delete-image':
+            header('Content-Type: application/json');
+            $imageController->deleteImage();
             break;
 
         case '/delete-account':
