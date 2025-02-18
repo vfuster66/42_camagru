@@ -8,6 +8,7 @@
 5. [🎮 Utilisation](#-utilisation)  
 6. [🔧 Architecture du projet](#-architecture-du-projet)  
 7. [🛠 Technologies utilisées](#-technologies-utilisées)  
+8. [⭐ Bonus Implémentés](#-bonus-implémentés)
 
 ---
 
@@ -126,3 +127,16 @@ Le projet suit une **architecture MVC (Modèle-Vue-Contrôleur)** pour une meill
 - **Exposition serveur :** ngrok  
 
 ---
+
+## ⭐ Bonus Implémentés
+
+![Bonus](https://img.shields.io/badge/BONUS-Implémenté-success)  
+📌 **Améliorations et fonctionnalités avancées :**  
+
+- 🏆 **Pagination infinie AJAX**  
+- 📩 **Notifications email pour les commentaires (désactivables)**  
+- 📤 **Partage d’images sur Facebook**  
+- 🎭 **Prévisualisation en direct des filtres appliqués**  
+- 🧹 **Nettoyage automatique des fichiers temporaires**  
+- 🚀 **Gestion simplifiée avec Makefile**
+
