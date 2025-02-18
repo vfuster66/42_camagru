@@ -130,7 +130,6 @@ Le projet suit une **architecture MVC (Modèle-Vue-Contrôleur)** pour une meill
 
 ## ⭐ Bonus Implémentés
 
-![Bonus](https://img.shields.io/badge/BONUS-Implémenté-success)  
 📌 **Améliorations et fonctionnalités avancées :**  
 
 - 🏆 **Pagination infinie AJAX**  
