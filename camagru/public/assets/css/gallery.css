@@ -1,11 +1,9 @@
-/* Conteneur principal de la galerie */
 .gallery-container {
     max-width: 1300px;
     margin: 0 auto;
     padding: 20px;
 }
 
-/* Grille responsive */
 .gallery-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr); 
@@ -13,7 +11,6 @@
     padding: 20px 0;
 }
 
-/* Style des éléments de la galerie */
 .gallery-item {
     background: white;
     border-radius: 8px;
@@ -28,7 +25,6 @@
     transform: translateY(-5px);
 }
 
-/* Conteneur d'image avec ratio aspect */
 .image-container {
     position: relative;
     width: 100%;
@@ -49,7 +45,6 @@
     transform: scale(1.05);
 }
 
-/* Informations de l'image */
 .image-info {
     padding: 15px;
     display: flex;
@@ -73,7 +68,6 @@
     font-size: 0.9em;
 }
 
-/* Conteneur des boutons */
 .interaction-container {
     display: flex;
     justify-content: center;
@@ -81,13 +75,11 @@
     padding: 10px 0;
 }
 
-/* Alignement des boutons */
 .interaction-buttons {
     display: flex;
     align-items: center;
 }
 
-/* Style général des boutons */
 .like-btn,
 .comment-btn,
 .delete-image-btn,
@@ -108,7 +100,6 @@
     color: #ff7675;
 }
 
-/* Effet hover */
 .like-btn:hover,
 .comment-btn:hover,
 .delete-image-btn:hover,
@@ -116,7 +107,6 @@
     background-color: rgba(0, 0, 0, 0.05);
 }
 
-/* Style spécifique des icônes */
 .like-btn i,
 .comment-btn i,
 .delete-image-btn i,
@@ -124,7 +114,6 @@
     font-size: 18px;
 }
 
-/* Effet du like actif */
 .like-btn.liked {
     color: #ff4d4d;
 }
@@ -133,14 +122,12 @@
     animation: pulse 0.3s ease-in-out;
 }
 
-/* Animation du like */
 @keyframes pulse {
     0% { transform: scale(1); }
     50% { transform: scale(1.2); }
     100% { transform: scale(1); }
 }
 
-/* Suppression */
 .delete-image-btn {
     color: #ff4d4d;
 }
@@ -149,7 +136,6 @@
     color: #cc0000;
 }
 
-/* Boutons de partage */
 .share-btn {
     font-size: 18px;
     padding: 8px;
@@ -162,7 +148,6 @@
     transition: background-color 0.3s;
 }
 
-/* Couleurs des icônes */
 .share-btn.twitter {
     color: #1DA1F2;
 }
@@ -175,13 +160,10 @@
     color: #25D366;
 }
 
-/* Hover */
 .share-btn:hover {
     opacity: 0.8;
 }
 
-
-/* Pagination */
 .pagination {
     display: flex;
     justify-content: center;
@@ -208,7 +190,6 @@
     color: white;
 }
 
-/* Responsive Design */
 @media (max-width: 1200px) {
     .gallery-grid {
         grid-template-columns: repeat(4, 1fr);
@@ -259,7 +240,6 @@
     }
 }
 
-/* Animation de chargement */
 .lazy {
     opacity: 0;
     transition: opacity 0.3s ease-in-out;
@@ -269,13 +249,11 @@
     opacity: 1;
 }
 
-/* Styles pour le bouton like actif */
 .like-btn.liked {
     color: #ff7675;
     background-color: rgba(255, 118, 117, 0.1);
 }
 
-/* Modale */
 .modal {
     display: none;
     position: fixed;
@@ -299,7 +277,6 @@
     overflow-y: auto;
 }
 
-/* Bouton fermeture modale */
 .close {
     position: absolute;
     right: 20px;
@@ -314,7 +291,6 @@
     color: #333;
 }
 
-/* Liste des commentaires */
 .comments-list {
     margin: 20px 0;
 }
@@ -351,7 +327,6 @@
     word-wrap: break-word;
 }
 
-/* Formulaire de commentaire */
 .comment-form {
     margin-top: 20px;
     padding-top: 20px;
@@ -382,7 +357,6 @@
     background: #ff5c5c;
 }
 
-/* Bouton de suppression de commentaire */
 .delete-comment {
     position: absolute;
     right: 15px;
@@ -400,7 +374,6 @@
     background-color: rgba(255, 118, 117, 0.1);
 }
 
-/* Message de connexion requis */
 .login-prompt {
     text-align: center;
     padding: 20px;
@@ -410,7 +383,6 @@
     margin-top: 20px;
 }
 
-/* Adaptations responsive pour la modale */
 @media (max-width: 768px) {
     .modal-content {
         width: 95%;

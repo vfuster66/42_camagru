@@ -1,6 +1,3 @@
-/* =============================== */
-/* 📸 STYLES ÉDITEUR PHOTO        */
-/* =============================== */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -16,7 +13,6 @@
     --border-radius: 8px;
 }
 
-/* Structure générale */
 .editor-container {
     width: 100%;
     max-width: 1600px;
@@ -30,7 +26,6 @@
     gap: 2rem;
 }
 
-/* Conteneurs principaux */
 .filters-container,
 .editor-sidebar,
 .capture-container,
@@ -41,7 +36,6 @@
     box-shadow: var(--shadow);
 }
 
-/* Colonne filtres */
 .filters-container {
     grid-column: 1;
     grid-row: 1 / span 2;
@@ -78,7 +72,6 @@
     background-color: rgba(40, 167, 69, 0.1);
 }
 
-/* Colonne centrale */
 .capture-container {
     grid-column: 2;
     grid-row: 1;
@@ -89,7 +82,6 @@
     grid-row: 2;
 }
 
-/* Zone Webcam */
 .webcam-container {
     width: 100%;
     aspect-ratio: 4/3;
@@ -120,7 +112,6 @@
     display: none;
 }
 
-/* Bouton capture */
 #capture-btn {
     width: 100%;
     background: var(--primary-color);
@@ -148,7 +139,6 @@
     box-shadow: none;
 }
 
-/* Zone Upload */
 .upload-wrapper {
     display: flex;
     align-items: center;
@@ -183,7 +173,6 @@
     color: var(--primary-color);
 }
 
-/* Zone Preview */
 .preview-wrapper {
     width: 100%;
     aspect-ratio: 4/3;
@@ -227,7 +216,6 @@
     display: block;
 }
 
-/* Colonne miniatures */
 .editor-sidebar {
     grid-column: 3;
     grid-row: 1 / span 2;
@@ -275,7 +263,6 @@
     transform: scale(1.1);
 }
 
-/* Overlay et contrôles */
 .overlay-wrapper {
     position: absolute;
     transform-origin: center;
@@ -290,7 +277,6 @@
     pointer-events: none;
 }
 
-/* Poignées de redimensionnement */
 .resize-handle {
     position: absolute;
     width: 20px;
@@ -312,7 +298,6 @@
 .resize-handle.bottom-left { bottom: -10px; left: -10px; cursor: sw-resize; }
 .resize-handle.bottom-right { bottom: -10px; right: -10px; cursor: se-resize; }
 
-/* Poignée de rotation */
 .rotate-handle {
     position: absolute;
     top: -30px;
@@ -336,14 +321,12 @@
     font-size: 16px;
 }
 
-/* Titres */
 h3 {
     margin: 0 0 1rem 0;
     font-size: 1.2rem;
     color: #333;
 }
 
-/* Formulaire upload */
 #upload-form button[type="submit"] {
     width: 100%;
     background: var(--primary-color);
@@ -364,7 +347,6 @@ h3 {
     box-shadow: var(--shadow);
 }
 
-/* 📱 Tablettes larges (< 1200px) */
 @media screen and (max-width: 1200px) {
     .editor-main {
         grid-template-columns: 250px 1fr 250px;
@@ -385,7 +367,6 @@ h3 {
     }
 }
 
-/* 📱 Tablettes moyennes (< 992px) */
 @media screen and (max-width: 992px) {
     .editor-main {
         grid-template-columns: 200px 1fr 200px;
@@ -403,7 +384,6 @@ h3 {
     }
 }
 
-/* 📱 Tablettes et mobiles larges (< 768px) */
 @media screen and (max-width: 768px) {
     .editor-container {
         padding: 0.5rem;
@@ -417,7 +397,6 @@ h3 {
         width: 100%;
     }
 
-    /* Réorganisation des colonnes */
     .filters-container {
         grid-column: 1;
         grid-row: 2;
@@ -442,14 +421,12 @@ h3 {
         width: 100%;
     }
 
-    /* Adaptation des grilles de filtres et miniatures */
     .filters-grid,
     #thumbnails-container {
         grid-template-columns: repeat(3, 1fr);
         gap: 0.8rem;
     }
 
-    /* Ajustement des conteneurs */
     .filters-container,
     .editor-sidebar,
     .capture-container,
@@ -458,32 +435,27 @@ h3 {
         padding: 0.75rem;
     }
 
-    /* Ajustement de la zone de webcam */
     .webcam-container {
         width: 100%;
         max-width: 100%;
     }
 
-    /* Ajustement de la zone d'upload */
     .upload-wrapper {
         width: 100%;
     }
 }
 
-/* 📱 Mobiles (< 576px) */
 @media screen and (max-width: 576px) {
     .editor-container {
         padding: 0.25rem;
     }
 
-    /* Adaptation des grilles en 2 colonnes */
     .filters-grid,
     #thumbnails-container {
         grid-template-columns: repeat(2, 1fr);
         gap: 0.5rem;
     }
 
-    /* Ajustement des conteneurs */
     .filters-container,
     .editor-sidebar,
     .capture-container,
@@ -492,7 +464,6 @@ h3 {
         margin-bottom: 0.5rem;
     }
 
-    /* Ajustement des boutons */
     #capture-btn,
     #upload-form button[type="submit"] {
         padding: 0.7rem;
@@ -500,7 +471,6 @@ h3 {
         width: 100%;
     }
 
-    /* Ajustement de la zone d'upload */
     .upload-wrapper {
         padding: 0.5rem;
         margin-bottom: 0.5rem;
@@ -510,7 +480,6 @@ h3 {
         font-size: 0.9rem;
     }
 
-    /* Réduction de la taille des poignées */
     .resize-handle {
         width: 16px;
         height: 16px;
@@ -522,7 +491,6 @@ h3 {
     }
 }
 
-/* 📱 Petits mobiles (< 400px) */
 @media screen and (max-width: 400px) {
     .editor-container {
         padding: 0.25rem;
@@ -547,7 +515,6 @@ h3 {
     }
 }
 
-/* 🌅 Mode paysage mobile */
 @media screen and (max-height: 500px) and (orientation: landscape) {
     .editor-container {
         padding: 0.25rem;
