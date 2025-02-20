@@ -1,10 +1,12 @@
 <?php
-require_once __DIR__ . '/../vendor/autoload.php';
+$config = parse_ini_file(__DIR__ . '/../.env');
 
-use Dotenv\Dotenv;
+define('DB_DATABASE', $config['DB_DATABASE']);
+define('DB_USERNAME', $config['DB_USERNAME']);
+define('DB_PASSWORD', $config['DB_PASSWORD']);
+define('GMAIL_ADDRESS', $config['GMAIL_ADDRESS']);
+define('GMAIL_PASSWORD', $config['GMAIL_PASSWORD']);
 
-$dotenv = Dotenv::createImmutable(dirname(__DIR__));
-$dotenv->load();
 
 require_once __DIR__ . '/../src/config/session.php';
 SessionManager::init();

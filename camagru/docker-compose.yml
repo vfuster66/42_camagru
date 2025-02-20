@@ -9,12 +9,13 @@ services:
     volumes:
       - ./public:/var/www/html/public:ro
       - ./src:/var/www/html/src:ro
-      - ./vendor:/var/www/html/vendor
       - uploads_data:/var/www/html/public/uploads
     environment:
       - DB_DATABASE=${DB_DATABASE}
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
+      - GMAIL_ADDRESS=${GMAIL_ADDRESS}
+      - GMAIL_PASSWORD=${GMAIL_PASSWORD}
     networks:
       - camagru-network
     depends_on:

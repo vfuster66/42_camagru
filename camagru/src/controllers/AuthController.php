@@ -2,14 +2,15 @@
 
 require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../config/csrf.php';
-require_once __DIR__ . '/../../vendor/autoload.php';
 
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-use Dotenv\Dotenv;
+$config = parse_ini_file(__DIR__ . '/../../.env');
 
-$dotenv = Dotenv::createImmutable(dirname(__DIR__, 2));
-$dotenv->load();
+if (!$config) {
+    die("Erreur : Impossible de charger le fichier .env");
+}
+
+$gmailAddress = getenv('GMAIL_ADDRESS');
+$gmailPassword = getenv('GMAIL_PASSWORD');
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -79,39 +80,31 @@ class AuthController
                     throw new Exception("Erreur lors de la création de l'utilisateur");
                 }
 
-                $mail = new PHPMailer(true);
-                $mail->isSMTP();
-                $mail->Host = 'smtp.gmail.com';
-                $mail->SMTPAuth = true;
-                $mail->Username = $_ENV['GMAIL_ADDRESS'];
-                $mail->Password = $_ENV['GMAIL_PASSWORD'];
-                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-                $mail->Port = 587;
-                $mail->CharSet = 'UTF-8';
-
-                $mail->setFrom('no-reply@camagru.com', 'Camagru');
-                $mail->addAddress($email, $username);
-
-                $mail->isHTML(true);
-                $mail->Subject = "Vérification de votre compte Camagru";
+                $to = $email;
+                $subject = "Vérification de votre compte Camagru";
                 $verificationLink = "http://localhost:8080/verify_email?token=" . $result['verification_token'];
-
-                $mail->Body = "
-                <h2>Bienvenue sur Camagru, {$username} !</h2>
-                <p>Merci de votre inscription. Pour activer votre compte, veuillez cliquer sur le lien ci-dessous :</p>
-                <p><a href='{$verificationLink}'>Vérifier mon compte</a></p>
-                <p><strong>Important :</strong> Ce lien est valable pendant 24 heures.</p>
-                <p>Si vous n'avez pas créé de compte sur Camagru, vous pouvez ignorer cet email.</p>
-            ";
-
-                $mail->AltBody = "
-                Bienvenue sur Camagru, {$username} !
-                Pour activer votre compte, copiez et collez ce lien dans votre navigateur :
-                {$verificationLink}
-                Ce lien est valable pendant 24 heures.
-            ";
-
-                $mail->send();
+                
+                $message = "
+                <html>
+                <head>
+                    <title>Vérification de votre compte Camagru</title>
+                </head>
+                <body>
+                    <h2>Bienvenue sur Camagru, {$username} !</h2>
+                    <p>Merci de votre inscription. Pour activer votre compte, veuillez cliquer sur le lien ci-dessous :</p>
+                    <p><a href='{$verificationLink}'>Vérifier mon compte</a></p>
+                    <p><strong>Important :</strong> Ce lien est valable pendant 24 heures.</p>
+                    <p>Si vous n'avez pas créé de compte sur Camagru, vous pouvez ignorer cet email.</p>
+                </body>
+                </html>
+                ";
+                
+                $headers = "MIME-Version: 1.0" . "\r\n";
+                $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+                $headers .= "From: no-reply@camagru.com" . "\r\n";
+                $headers .= "Reply-To: no-reply@camagru.com" . "\r\n";
+                
+                mail($to, $subject, $message, $headers);                
 
                 $_SESSION['success'] = "Inscription réussie ! Un email de confirmation a été envoyé à {$email}. 
                                 Veuillez cliquer sur le lien dans l'email pour activer votre compte.
@@ -156,24 +149,27 @@ class AuthController
     public function forgotPassword()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
+    
             error_log("DEBUG: Requête reçue pour forgotPassword");
-
+    
+            // Vérification CSRF
             if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
                 error_log("❌ ERREUR: CSRF token invalide !");
                 die("Erreur CSRF, requête invalide.");
             }
-
+    
+            // Nettoyage et validation de l'email
             $email = filter_var(trim($_POST['email']), FILTER_SANITIZE_EMAIL);
             error_log("DEBUG: Email reçu -> " . $email);
-
+    
             if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 error_log("❌ ERREUR: Email invalide !");
                 $_SESSION['error'] = "Email invalide.";
                 header("Location: /forgot_password");
                 exit;
             }
-
+    
+            // Vérification de l'existence de l'utilisateur
             $user = $this->userModel->getUserByEmail($email);
             if (!$user) {
                 error_log("❌ ERREUR: Aucun utilisateur trouvé pour cet email.");
@@ -181,49 +177,57 @@ class AuthController
                 header("Location: /forgot_password");
                 exit;
             }
-
+    
+            // Génération d'un token sécurisé
             $token = bin2hex(random_bytes(50));
             error_log("DEBUG: Token généré -> " . $token);
-
-            $this->userModel->storeResetToken($email, $token);
-
-            $storedToken = $this->userModel->getUserByToken($token);
-            if (!$storedToken) {
-                error_log("❌ ERREUR: Le token n'a pas été enregistré correctement !");
-            } else {
-                error_log("✅ SUCCÈS: Token enregistré en base.");
+    
+            // Stocker le token de réinitialisation en base
+            if (!$this->userModel->storeResetToken($email, $token)) {
+                error_log("❌ ERREUR: Le token n'a pas pu être enregistré en base.");
+                $_SESSION['error'] = "Une erreur est survenue, veuillez réessayer.";
+                header("Location: /forgot_password");
+                exit;
             }
-
-            $mail = new PHPMailer(true);
-            try {
-                $mail->isSMTP();
-                $mail->Host = 'smtp.gmail.com';
-                $mail->SMTPAuth = true;
-                $mail->Username = $_ENV['GMAIL_ADDRESS'];
-                $mail->Password = $_ENV['GMAIL_PASSWORD'];
-                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-                $mail->Port = 587;
-
-                $mail->setFrom('no-reply@camagru.com', 'Camagru');
-                $mail->addAddress($email);
-
-                $mail->isHTML(true);
-                $mail->Subject = "Réinitialisation de votre mot de passe";
-                $mail->Body = "Cliquez sur ce lien pour réinitialiser votre mot de passe : 
-                    <a href='http://localhost:8080/reset_password?token=$token'>Réinitialiser mon mot de passe</a>";
-
-                $mail->send();
-                error_log("✅ SUCCÈS: Email envoyé avec le token.");
-
+            
+            error_log("✅ SUCCÈS: Token enregistré en base.");
+    
+            // Préparer l'email de réinitialisation
+            $resetLink = "http://localhost:8080/reset_password?token=" . urlencode($token);
+            $subject = "Réinitialisation de votre mot de passe";
+            $message = "
+            <html>
+            <head>
+                <title>Réinitialisation de votre mot de passe</title>
+            </head>
+            <body>
+                <p>Bonjour,</p>
+                <p>Vous avez demandé à réinitialiser votre mot de passe.</p>
+                <p>Cliquez sur le lien ci-dessous pour choisir un nouveau mot de passe :</p>
+                <p><a href='{$resetLink}'>Réinitialiser mon mot de passe</a></p>
+                <p>Ce lien expirera dans 24 heures.</p>
+                <p>Si vous n'êtes pas à l'origine de cette demande, ignorez simplement cet email.</p>
+            </body>
+            </html>
+            ";
+    
+            // En-têtes pour un email HTML
+            $headers = "MIME-Version: 1.0" . "\r\n";
+            $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+            $headers .= "From: no-reply@camagru.com" . "\r\n";
+            $headers .= "Reply-To: no-reply@camagru.com" . "\r\n";
+    
+            // Envoi de l'email
+            if (mail($email, $subject, $message, $headers)) {
+                error_log("✅ SUCCÈS: Email de réinitialisation envoyé.");
                 $_SESSION['success'] = "Un email de réinitialisation a été envoyé.";
-                header("Location: /forgot_password");
-                exit;
-            } catch (Exception $e) {
-                error_log("❌ ERREUR: L'email n'a pas pu être envoyé. Erreur: " . $mail->ErrorInfo);
+            } else {
+                error_log("❌ ERREUR: L'email n'a pas pu être envoyé.");
                 $_SESSION['error'] = "L'email n'a pas pu être envoyé.";
-                header("Location: /forgot_password");
-                exit;
             }
+    
+            header("Location: /forgot_password");
+            exit;
         }
     }
 

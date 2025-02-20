@@ -1,10 +1,6 @@
 <?php
 
 require_once __DIR__ . '/../models/Comment.php';
-require_once __DIR__ . '/../../vendor/autoload.php';
-
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
 
 class CommentController {
     private $commentModel;
@@ -60,6 +56,7 @@ class CommentController {
             return;
         }
 
+        // Vérifier si l'utilisateur propriétaire de l'image veut recevoir des notifications
         if ($result['image_owner']['email_notifications'] && 
             $result['image_owner']['user_id'] !== $_SESSION['user']['id']) {
             $this->sendNotificationEmail(
@@ -77,33 +74,35 @@ class CommentController {
     }
 
     private function sendNotificationEmail($to, $recipientName, $commenterName) {
-        try {
-            $mail = new PHPMailer(true);
-            $mail->isSMTP();
-            $mail->Host = 'smtp.gmail.com';
-            $mail->SMTPAuth = true;
-            $mail->Username = $_ENV['GMAIL_ADDRESS'];
-            $mail->Password = $_ENV['GMAIL_PASSWORD'];
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port = 587;
-            $mail->CharSet = 'UTF-8';
+        // Sujet de l'email
+        $subject = "Nouveau commentaire sur votre photo";
 
-            $mail->setFrom('no-reply@camagru.com', 'Camagru');
-            $mail->addAddress($to, $recipientName);
+        // Message HTML
+        $message = "
+        <html>
+        <head>
+            <title>Nouveau commentaire sur votre photo</title>
+        </head>
+        <body>
+            <h2>Bonjour $recipientName !</h2>
+            <p>$commenterName a commenté votre photo sur Camagru.</p>
+            <p>Connectez-vous pour voir le commentaire !</p>
+            <p><a href='http://localhost:8080/gallery'>Voir la photo</a></p>
+        </body>
+        </html>
+        ";
 
-            $mail->isHTML(true);
-            $mail->Subject = "Nouveau commentaire sur votre photo";
-            $mail->Body = "
-                <h2>Bonjour $recipientName !</h2>
-                <p>$commenterName a commenté votre photo sur Camagru.</p>
-                <p>Connectez-vous pour voir le commentaire !</p>
-            ";
+        // En-têtes pour un email HTML
+        $headers = "MIME-Version: 1.0" . "\r\n";
+        $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+        $headers .= "From: no-reply@camagru.com" . "\r\n";
+        $headers .= "Reply-To: no-reply@camagru.com" . "\r\n";
 
-            $mail->AltBody = "Bonjour $recipientName ! $commenterName a commenté votre photo sur Camagru.";
-
-            $mail->send();
-        } catch (Exception $e) {
-            error_log("Erreur d'envoi d'email: " . $e->getMessage());
+        // Envoi de l'email
+        if (mail($to, $subject, $message, $headers)) {
+            error_log("✅ Notification email envoyée à $to");
+        } else {
+            error_log("❌ Erreur lors de l'envoi de l'email à $to");
         }
     }
 
@@ -140,3 +139,4 @@ class CommentController {
         }
     }
 }
+?>

@@ -1,21 +1,21 @@
 <?php
 
-require_once __DIR__ . '/../../vendor/autoload.php';
-
-use Dotenv\Dotenv;
-
 class Database {
     private static $instance = null;
     private $pdo;
 
     private function __construct() {
-        $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
-        $dotenv->load();
+        $config = parse_ini_file(__DIR__ . '/../../.env');
 
-        $host = 'camagru-mysql';
-        $dbname = getenv('DB_DATABASE');
-        $username = getenv('DB_USERNAME');
-        $password = getenv('DB_PASSWORD');
+        // Vérification des valeurs
+        if (!$config) {
+            die("Erreur : Impossible de charger le fichier .env");
+        }
+
+        $host = 'camagru-mysql'; // Nom du conteneur MySQL dans docker-compose.yml
+        $dbname = $config['DB_DATABASE'];
+        $username = $config['DB_USERNAME'];
+        $password = $config['DB_PASSWORD'];
 
         try {
             $this->pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password);
@@ -32,3 +32,4 @@ class Database {
         return self::$instance->pdo;
     }
 }
+?>
