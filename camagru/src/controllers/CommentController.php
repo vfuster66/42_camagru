@@ -40,13 +40,13 @@ class CommentController {
         }
 
         $imageId = filter_input(INPUT_POST, 'image_id', FILTER_VALIDATE_INT);
-        $content = trim(filter_input(INPUT_POST, 'content', FILTER_SANITIZE_STRING));
-
+        $content = trim(htmlspecialchars($_POST['content'], ENT_QUOTES, 'UTF-8'));
+        
         if (!$imageId || empty($content)) {
             http_response_code(400);
             echo json_encode(['error' => 'Données invalides']);
             return;
-        }
+        }        
 
         $result = $this->commentModel->addComment($imageId, $_SESSION['user']['id'], $content);
 

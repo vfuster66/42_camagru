@@ -13,7 +13,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
     <?php
 
-    $ngrok_url = "https://b408-91-151-126-62.ngrok-free.app";
+    $ngrok_url = "https://f4ef-91-151-126-62.ngrok-free.app";
     $currentImagePath = isset($viewData['images'][0]['image_path']) ? $viewData['images'][0]['image_path'] : '';
     $currentUrl = $ngrok_url . "/uploads/" . $currentImagePath;
     ?>
@@ -461,7 +461,7 @@ if (session_status() === PHP_SESSION_NONE) {
             });
         });
 
-        const ngrokUrl = "https://b408-91-151-126-62.ngrok-free.app";
+        const ngrokUrl = "https://f4ef-91-151-126-62.ngrok-free.app";
 
         function constructShareUrl(imagePath) {
             return `${ngrokUrl}/uploads/${imagePath}`;

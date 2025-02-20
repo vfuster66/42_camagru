@@ -35,13 +35,13 @@ class UserController {
             return;
         }
 
-        $newUsername = trim(filter_input(INPUT_POST, 'username', FILTER_SANITIZE_STRING));
-        
+        $newUsername = trim(htmlspecialchars($_POST['username'], ENT_QUOTES, 'UTF-8'));
+
         if (empty($newUsername) || strlen($newUsername) < 3) {
             http_response_code(400);
             echo json_encode(['error' => 'Le nom d\'utilisateur doit contenir au moins 3 caractères.']);
             return;
-        }
+        }        
 
         $result = $this->userModel->updateUsername($_SESSION['user']['id'], $newUsername);
         
