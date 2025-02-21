@@ -300,24 +300,24 @@ class ImageController {
 
     public function getUserImages() {
         header('Content-Type: application/json');
-
+    
         if (!isset($_SESSION['user'])) {
             http_response_code(401);
             echo json_encode(['error' => 'Non autorisé']);
             return;
         }
-
+    
         try {
-            error_log("Récupération des images pour l'utilisateur: " . $_SESSION['user']['id']);
+            error_log("Récupération des 6 dernières images pour l'utilisateur: " . $_SESSION['user']['id']);
 
-            $images = $this->imageModel->getImagesByUserId($_SESSION['user']['id']);
-
+            $images = $this->imageModel->getImagesByUserId($_SESSION['user']['id'], 6);
+    
             if ($images === false) {
                 throw new Exception('Erreur lors de la récupération des images');
             }
-
+    
             error_log("Images trouvées: " . print_r($images, true));
-
+    
             $formattedImages = array_map(function($image) {
                 return [
                     'id' => $image['id'],
@@ -325,12 +325,12 @@ class ImageController {
                     'created_at' => $image['created_at']
                 ];
             }, $images);
-
+    
             echo json_encode([
                 'success' => true,
                 'images' => $formattedImages
             ]);
-
+    
         } catch (Exception $e) {
             error_log("Erreur dans getUserImages: " . $e->getMessage());
             http_response_code(500);

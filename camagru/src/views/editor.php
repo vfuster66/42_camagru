@@ -106,14 +106,15 @@ if (!isset($_SESSION['user'])) {
 
                 this.setupOverlay();
                 this.setupEventListeners();
+                this.hasRotation = false;
             }
 
             setupOverlay() {
                 this.overlayWrapper = document.createElement('div');
                 this.overlayWrapper.className = 'overlay-wrapper';
                 this.overlayWrapper.style.position = 'absolute';
-                this.overlayWrapper.style.transformOrigin = 'center center';
                 this.overlayWrapper.style.cursor = 'move';
+                this.updateTransformOrigin();
 
                 this.overlay = document.createElement('img');
                 this.overlay.className = 'overlay-image';
@@ -136,87 +137,32 @@ if (!isset($_SESSION['user'])) {
                 this.container.appendChild(this.overlayWrapper);
             }
 
-            setupEventListeners() {
-
-                this.overlayWrapper.addEventListener('mousedown', this.startDragging.bind(this));
-                document.addEventListener('mousemove', this.handleMouseMove.bind(this));
-                document.addEventListener('mouseup', this.stopDragging.bind(this));
-
-                const resizeHandles = this.overlayWrapper.querySelectorAll('.resize-handle');
-                resizeHandles.forEach(handle => {
-                    handle.addEventListener('mousedown', (e) => {
-                        e.stopPropagation();
-                        this.startResizing(e, handle);
-                    });
-                });
-
-                const rotateHandle = this.overlayWrapper.querySelector('.rotate-handle');
-                rotateHandle.addEventListener('mousedown', (e) => {
-                    e.stopPropagation();
-                    this.startRotating(e);
-                });
-
-                this.overlayWrapper.addEventListener('touchstart', this.handleTouchStart.bind(this));
-                document.addEventListener('touchmove', this.handleTouchMove.bind(this));
-                document.addEventListener('touchend', this.handleTouchEnd.bind(this));
-            }
-
-            startDragging(e) {
-                if (e.target.classList.contains('resize-handle') || e.target.classList.contains('rotate-handle')) {
-                    return;
-                }
-                this.isDragging = true;
-
-                const transformMatrix = new DOMMatrix(window.getComputedStyle(this.overlayWrapper).transform);
-                this.startX = e.clientX - transformMatrix.e;
-                this.startY = e.clientY - transformMatrix.f;
-
-                const rect = this.overlayWrapper.getBoundingClientRect();
-                this.initialLeft = rect.left;
-                this.initialTop = rect.top;
-            }
-
-            startResizing(e, handle) {
-                this.isResizing = true;
-                this.currentHandle = handle;
-                this.startX = e.clientX;
-                this.startY = e.clientY;
-                this.initialScale = this.scale;
-
-                const rect = this.overlayWrapper.getBoundingClientRect();
-                this.initialWidth = rect.width;
-                this.initialHeight = rect.height;
-            }
-
-            startRotating(e) {
-                e.stopPropagation();
-                this.isRotating = true;
-                const rect = this.overlayWrapper.getBoundingClientRect();
-                const centerX = rect.left + rect.width / 2;
-                const centerY = rect.top + rect.height / 2;
-                this.initialRotation = Math.atan2(e.clientY - centerY, e.clientX - centerX);
-            }
-
             handleMouseMove(e) {
                 if (this.isDragging) {
                     e.preventDefault();
 
+                    const deltaX = e.clientX - this.startX;
+                    const deltaY = e.clientY - this.startY;
+
                     const containerRect = this.container.getBoundingClientRect();
                     const wrapperRect = this.overlayWrapper.getBoundingClientRect();
 
-                    let newX = e.clientX - this.startX;
-                    let newY = e.clientY - this.startY;
+                    let newX = this.currentX + deltaX;
+                    let newY = this.currentY + deltaY;
 
-                    const maxX = containerRect.width - wrapperRect.width;
-                    const maxY = containerRect.height - wrapperRect.height;
+                    const maxX = containerRect.width - (wrapperRect.width * this.scale);
+                    const maxY = containerRect.height - (wrapperRect.height * this.scale);
 
-                    newX = Math.max(containerRect.left - wrapperRect.left, Math.min(maxX, newX));
-                    newY = Math.max(containerRect.top - wrapperRect.top, Math.min(maxY, newY));
+                    newX = Math.max(0, Math.min(newX, maxX));
+                    newY = Math.max(0, Math.min(newY, maxY));
 
                     this.currentX = newX;
                     this.currentY = newY;
 
                     this.updateTransform();
+
+                    this.startX = e.clientX;
+                    this.startY = e.clientY;
                 } else if (this.isResizing) {
                     e.preventDefault();
 
@@ -248,61 +194,40 @@ if (!isset($_SESSION['user'])) {
                 }
             }
 
-            handleTouchStart(e) {
-                if (e.touches.length === 1) {
-                    const touch = e.touches[0];
-                    this.startDragging(touch);
-                } else if (e.touches.length === 2) {
-                    const touch1 = e.touches[0];
-                    const touch2 = e.touches[1];
-
-                    this.initialDistance = Math.hypot(
-                        touch2.clientX - touch1.clientX,
-                        touch2.clientY - touch1.clientY
-                    );
-                    this.initialScale = this.scale;
-                    this.initialRotation = Math.atan2(
-                        touch2.clientY - touch1.clientY,
-                        touch2.clientX - touch1.clientX
-                    );
+            startDragging(e) {
+                if (e.target.classList.contains('resize-handle') || e.target.classList.contains('rotate-handle')) {
+                    return;
                 }
+                this.isDragging = true;
+                this.startX = e.clientX;
+                this.startY = e.clientY;
             }
 
-            handleTouchMove(e) {
-                e.preventDefault();
-
-                if (e.touches.length === 1 && this.isDragging) {
-                    this.handleMouseMove(e.touches[0]);
-                } else if (e.touches.length === 2) {
-                    const touch1 = e.touches[0];
-                    const touch2 = e.touches[1];
-
-                    const currentDistance = Math.hypot(
-                        touch2.clientX - touch1.clientX,
-                        touch2.clientY - touch1.clientY
-                    );
-                    const scaleFactor = currentDistance / this.initialDistance;
-                    this.scale = Math.max(
-                        this.options.minScale,
-                        Math.min(this.options.maxScale, this.initialScale * scaleFactor)
-                    );
-
-                    const currentRotation = Math.atan2(
-                        touch2.clientY - touch1.clientY,
-                        touch2.clientX - touch1.clientX
-                    );
-                    const rotationDelta = (currentRotation - this.initialRotation) * (180 / Math.PI);
-                    this.rotation = (this.rotation + rotationDelta) % 360;
-                    this.initialRotation = currentRotation;
-
-                    this.updateTransform();
-                }
+            startResizing(e, handle) {
+                this.isResizing = true;
+                this.currentHandle = handle;
+                this.startX = e.clientX;
+                this.startY = e.clientY;
+                this.initialScale = this.scale;
             }
 
-            handleTouchEnd() {
-                this.isDragging = false;
-                this.isResizing = false;
-                this.isRotating = false;
+            startRotating(e) {
+                e.stopPropagation();
+                this.isRotating = true;
+                this.hasRotation = true;
+                const rect = this.overlayWrapper.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                this.initialRotation = Math.atan2(e.clientY - centerY, e.clientX - centerX);
+                this.updateTransformOrigin();
+            }
+
+            updateTransformOrigin() {
+                if (this.hasRotation) {
+                    this.overlayWrapper.style.transformOrigin = 'left top';
+                } else {
+                    this.overlayWrapper.style.transformOrigin = 'left top';
+                }
             }
 
             stopDragging() {
@@ -311,16 +236,28 @@ if (!isset($_SESSION['user'])) {
                 this.isRotating = false;
             }
 
+            setupEventListeners() {
+                this.overlayWrapper.addEventListener('mousedown', this.startDragging.bind(this));
+                document.addEventListener('mousemove', this.handleMouseMove.bind(this));
+                document.addEventListener('mouseup', this.stopDragging.bind(this));
 
+                const resizeHandles = this.overlayWrapper.querySelectorAll('.resize-handle');
+                resizeHandles.forEach(handle => {
+                    handle.addEventListener('mousedown', (e) => {
+                        e.stopPropagation();
+                        this.startResizing(e, handle);
+                    });
+                });
 
-            updateTransform() {
-                const transform = `translate(${this.currentX}px, ${this.currentY}px) rotate(${this.rotation}deg) scale(${this.scale})`;
-                this.overlayWrapper.style.transform = transform;
+                const rotateHandle = this.overlayWrapper.querySelector('.rotate-handle');
+                rotateHandle.addEventListener('mousedown', (e) => {
+                    e.stopPropagation();
+                    this.startRotating(e);
+                });
             }
 
             setImage(src) {
                 this.overlay.src = src;
-
                 this.scale = this.options.initialScale;
                 this.rotation = 0;
 
@@ -330,26 +267,59 @@ if (!isset($_SESSION['user'])) {
                 this.updateTransform();
             }
 
+            updateTransform() {
+                const transform = `translate(${this.currentX}px, ${this.currentY}px) rotate(${this.rotation}deg) scale(${this.scale})`;
+                this.overlayWrapper.style.transform = transform;
+            }
+
             getTransformations() {
-                const rect = this.overlayWrapper.getBoundingClientRect();
                 const containerRect = this.container.getBoundingClientRect();
+                const overlayRect = this.overlayWrapper.getBoundingClientRect();
 
-                const containerToWebcamRatio = WEBCAM_WIDTH / containerRect.width;
+                const scaleFactorX = containerRect.width / WEBCAM_WIDTH;
+                const scaleFactorY = containerRect.height / WEBCAM_HEIGHT;
 
-                const relativeX = (this.currentX / containerRect.width) * WEBCAM_WIDTH;
-                const relativeY = (this.currentY / containerRect.height) * WEBCAM_HEIGHT;
+                const W = overlayRect.width;
+                const H = overlayRect.height;
 
-                const adjustedScale = this.scale;
+                const currentLeft = this.currentX;
+                const currentTop = this.currentY;
+
+                const centerX = currentLeft + (W * this.scale) / 2;
+                const centerY = currentTop + (H * this.scale) / 2;
+
+                if (this.rotation === 0) {
+                    return {
+                        x: centerX / scaleFactorX,
+                        y: centerY / scaleFactorY,
+                        scale: this.scale,
+                        rotation: 0
+                    };
+                }
+
+                const angleRad = this.rotation * Math.PI / 180;
+
+                const pivotX = currentLeft;
+                const pivotY = currentTop;
+
+                const translatedX = centerX - pivotX;
+                const translatedY = centerY - pivotY;
+
+                const rotatedX = pivotX + (translatedX * Math.cos(angleRad) - translatedY * Math.sin(angleRad));
+                const rotatedY = pivotY + (translatedX * Math.sin(angleRad) + translatedY * Math.cos(angleRad));
+
+                const finalX = rotatedX / scaleFactorX;
+                const finalY = rotatedY / scaleFactorY;
 
                 return {
-                    x: relativeX,
-                    y: relativeY,
-                    scale: adjustedScale,
-                    rotation: this.rotation,
-                    width: WEBCAM_WIDTH,
-                    height: WEBCAM_HEIGHT
+                    x: finalX,
+                    y: finalY,
+                    scale: this.scale,
+                    rotation: this.rotation
                 };
             }
+
+
         }
 
         const WEBCAM_WIDTH = 800;
@@ -478,12 +448,9 @@ if (!isset($_SESSION['user'])) {
 
                             tempCtx.save();
                             tempCtx.translate(transforms.x, transforms.y);
-                            tempCtx.translate(filterImg.width / 2, filterImg.height / 2);
                             tempCtx.rotate(transforms.rotation * Math.PI / 180);
                             tempCtx.scale(transforms.scale, transforms.scale);
-                            tempCtx.translate(-filterImg.width / 2, -filterImg.height / 2);
-
-                            tempCtx.drawImage(filterImg, 0, 0);
+                            tempCtx.drawImage(filterImg, -filterImg.width / 2, -filterImg.height / 2);
                             tempCtx.restore();
                             resolve();
                         };
@@ -564,12 +531,9 @@ if (!isset($_SESSION['user'])) {
 
                                 tempCtx.save();
                                 tempCtx.translate(transforms.x, transforms.y);
-                                tempCtx.translate(filterImg.width / 2, filterImg.height / 2);
                                 tempCtx.rotate(transforms.rotation * Math.PI / 180);
                                 tempCtx.scale(transforms.scale, transforms.scale);
-                                tempCtx.translate(-filterImg.width / 2, -filterImg.height / 2);
-
-                                tempCtx.drawImage(filterImg, 0, 0);
+                                tempCtx.drawImage(filterImg, -filterImg.width / 2, -filterImg.height / 2);
                                 tempCtx.restore();
                                 resolve();
                             };

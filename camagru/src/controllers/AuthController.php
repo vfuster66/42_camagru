@@ -151,14 +151,12 @@ class AuthController
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
             error_log("DEBUG: Requête reçue pour forgotPassword");
-    
-            // Vérification CSRF
+
             if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
                 error_log("❌ ERREUR: CSRF token invalide !");
                 die("Erreur CSRF, requête invalide.");
             }
-    
-            // Nettoyage et validation de l'email
+
             $email = filter_var(trim($_POST['email']), FILTER_SANITIZE_EMAIL);
             error_log("DEBUG: Email reçu -> " . $email);
     
@@ -168,8 +166,7 @@ class AuthController
                 header("Location: /forgot_password");
                 exit;
             }
-    
-            // Vérification de l'existence de l'utilisateur
+
             $user = $this->userModel->getUserByEmail($email);
             if (!$user) {
                 error_log("❌ ERREUR: Aucun utilisateur trouvé pour cet email.");
@@ -177,12 +174,10 @@ class AuthController
                 header("Location: /forgot_password");
                 exit;
             }
-    
-            // Génération d'un token sécurisé
+
             $token = bin2hex(random_bytes(50));
             error_log("DEBUG: Token généré -> " . $token);
-    
-            // Stocker le token de réinitialisation en base
+
             if (!$this->userModel->storeResetToken($email, $token)) {
                 error_log("❌ ERREUR: Le token n'a pas pu être enregistré en base.");
                 $_SESSION['error'] = "Une erreur est survenue, veuillez réessayer.";
@@ -191,8 +186,7 @@ class AuthController
             }
             
             error_log("✅ SUCCÈS: Token enregistré en base.");
-    
-            // Préparer l'email de réinitialisation
+
             $resetLink = "http://localhost:8080/reset_password?token=" . urlencode($token);
             $subject = "Réinitialisation de votre mot de passe";
             $message = "
@@ -210,14 +204,12 @@ class AuthController
             </body>
             </html>
             ";
-    
-            // En-têtes pour un email HTML
+
             $headers = "MIME-Version: 1.0" . "\r\n";
             $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
             $headers .= "From: no-reply@camagru.com" . "\r\n";
             $headers .= "Reply-To: no-reply@camagru.com" . "\r\n";
-    
-            // Envoi de l'email
+
             if (mail($email, $subject, $message, $headers)) {
                 error_log("✅ SUCCÈS: Email de réinitialisation envoyé.");
                 $_SESSION['success'] = "Un email de réinitialisation a été envoyé.";

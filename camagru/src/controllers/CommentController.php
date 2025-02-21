@@ -56,7 +56,6 @@ class CommentController {
             return;
         }
 
-        // Vérifier si l'utilisateur propriétaire de l'image veut recevoir des notifications
         if ($result['image_owner']['email_notifications'] && 
             $result['image_owner']['user_id'] !== $_SESSION['user']['id']) {
             $this->sendNotificationEmail(
@@ -74,10 +73,8 @@ class CommentController {
     }
 
     private function sendNotificationEmail($to, $recipientName, $commenterName) {
-        // Sujet de l'email
         $subject = "Nouveau commentaire sur votre photo";
 
-        // Message HTML
         $message = "
         <html>
         <head>
@@ -92,13 +89,11 @@ class CommentController {
         </html>
         ";
 
-        // En-têtes pour un email HTML
         $headers = "MIME-Version: 1.0" . "\r\n";
         $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
         $headers .= "From: no-reply@camagru.com" . "\r\n";
         $headers .= "Reply-To: no-reply@camagru.com" . "\r\n";
 
-        // Envoi de l'email
         if (mail($to, $subject, $message, $headers)) {
             error_log("✅ Notification email envoyée à $to");
         } else {

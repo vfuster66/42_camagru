@@ -7,12 +7,11 @@ class Database {
     private function __construct() {
         $config = parse_ini_file(__DIR__ . '/../../.env');
 
-        // Vérification des valeurs
         if (!$config) {
             die("Erreur : Impossible de charger le fichier .env");
         }
 
-        $host = 'camagru-mysql'; // Nom du conteneur MySQL dans docker-compose.yml
+        $host = 'camagru-mysql';
         $dbname = $config['DB_DATABASE'];
         $username = $config['DB_USERNAME'];
         $password = $config['DB_PASSWORD'];

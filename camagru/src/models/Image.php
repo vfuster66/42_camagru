@@ -147,12 +147,23 @@ class Image
         }
     }
 
-    public function getImagesByUserId($userId)
+    public function getImagesByUserId($userId, $limit = null)
     {
         try {
             $sql = "SELECT * FROM images WHERE user_id = :user_id ORDER BY created_at DESC";
+            
+            if ($limit !== null) {
+                $sql .= " LIMIT :limit";
+            }
+            
             $stmt = $this->pdo->prepare($sql);
-            $stmt->execute(['user_id' => $userId]);
+            $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+            
+            if ($limit !== null) {
+                $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+            }
+            
+            $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             error_log("Erreur lors de la récupération des images: " . $e->getMessage());

@@ -1,556 +1,571 @@
 * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 :root {
-    --primary-color: #ff7675;
-    --primary-hover: #d63031;
-    --bg-light: #f5f5f5;
-    --bg-dark: #1a1a1a;
-    --shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
-    --border-radius: 8px;
+  --primary-color: #ff7675;
+  --primary-hover: #d63031;
+  --bg-light: #f5f5f5;
+  --bg-dark: #1a1a1a;
+  --shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+  --border-radius: 8px;
 }
 
 .editor-container {
-    width: 100%;
-    max-width: 1600px;
-    margin: 0 auto;
-    padding: 2rem;
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 2rem;
 }
 
 .editor-main {
-    display: grid;
-    grid-template-columns: 300px 1fr 300px;
-    gap: 2rem;
+  display: grid;
+  grid-template-columns: 300px 1fr 300px;
+  gap: 2rem;
 }
 
 .filters-container,
 .editor-sidebar,
 .capture-container,
 .upload-container {
-    background: var(--bg-light);
-    padding: 1.5rem;
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow);
+  background: var(--bg-light);
+  padding: 1.5rem;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
 }
 
 .filters-container {
-    grid-column: 1;
-    grid-row: 1 / span 2;
+  grid-column: 1;
+  grid-row: 1 / span 2;
 }
 
 .filters-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
 }
 
 .filter-item {
-    position: relative;
-    border: 2px solid transparent;
-    border-radius: 4px;
-    overflow: hidden;
-    cursor: pointer;
-    transition: all 0.3s ease;
+  position: relative;
+  border: 2px solid transparent;
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .filter-item img {
-    width: 100%;
-    height: auto;
-    display: block;
+  width: 100%;
+  height: auto;
+  display: block;
 }
 
 .filter-item:hover {
-    border-color: var(--primary-color);
-    transform: scale(1.02);
+  border-color: var(--primary-color);
+  transform: scale(1.02);
 }
 
 .filter-item.active {
-    border-color: #28a745;
-    background-color: rgba(40, 167, 69, 0.1);
+  border-color: #28a745;
+  background-color: rgba(40, 167, 69, 0.1);
 }
 
 .capture-container {
-    grid-column: 2;
-    grid-row: 1;
+  grid-column: 2;
+  grid-row: 1;
 }
 
 .upload-container {
-    grid-column: 2;
-    grid-row: 2;
+  grid-column: 2;
+  grid-row: 2;
 }
 
 .webcam-container {
-    width: 100%;
-    aspect-ratio: 4/3;
-    background: var(--bg-dark);
-    position: relative;
-    border-radius: var(--border-radius);
-    overflow: hidden;
-    margin-bottom: 1rem;
+  width: 100%;
+  aspect-ratio: 4/3;
+  background: var(--bg-dark);
+  position: relative;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  margin-bottom: 1rem;
 }
 
 #webcam {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 #overlay-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: all;
-    z-index: 10;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: all;
+  z-index: 10;
 }
 
 #canvas {
-    display: none;
+  display: none;
 }
 
 #capture-btn {
-    width: 100%;
-    background: var(--primary-color);
-    color: white;
-    border: none;
-    padding: 1rem 2rem;
-    border-radius: var(--border-radius);
-    font-size: 1.1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: var(--shadow);
+  width: 100%;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: var(--border-radius);
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow);
 }
 
 #capture-btn:hover:not(:disabled) {
-    background: var(--primary-hover);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  background: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
 #capture-btn:disabled {
-    background: #ccc;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .upload-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border: 2px dashed var(--primary-color);
-    border-radius: var(--border-radius);
-    padding: 1rem;
-    background: white;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 2px dashed var(--primary-color);
+  border-radius: var(--border-radius);
+  padding: 1rem;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 1rem;
 }
 
 .upload-wrapper:hover {
-    background: rgba(255, 118, 117, 0.1);
-    border-style: solid;
+  background: rgba(255, 118, 117, 0.1);
+  border-style: solid;
 }
 
 #image-upload {
-    display: none;
+  display: none;
 }
 
 #file-name {
-    font-size: 1rem;
-    color: #333;
-    flex: 1;
-    padding-left: 1rem;
+  font-size: 1rem;
+  color: #333;
+  flex: 1;
+  padding-left: 1rem;
 }
 
 .upload-icon {
-    font-size: 1.5rem;
-    color: var(--primary-color);
+  font-size: 1.5rem;
+  color: var(--primary-color);
 }
 
 .preview-wrapper {
-    width: 100%;
-    aspect-ratio: 4/3;
-    background: var(--bg-dark);
-    border-radius: var(--border-radius);
-    overflow: hidden;
-    margin: 1rem 0;
+  width: 100%;
+  aspect-ratio: 4/3;
+  background: var(--bg-dark);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  margin: 1rem 0;
 }
 
 #preview-container {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 4/3;
-    background: var(--bg-dark);
-    border-radius: var(--border-radius);
-    overflow: hidden;
-    margin: 1rem 0;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4/3;
+  background: var(--bg-dark);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  margin: 1rem 0;
 }
 
 #preview-overlay-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: all;
-    z-index: 10;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: all;
+  z-index: 10;
 }
 
 #upload-preview {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 #upload-preview {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .editor-sidebar {
-    grid-column: 3;
-    grid-row: 1 / span 2;
+  grid-column: 3;
+  grid-row: 1 / span 2;
 }
 
 #thumbnails-container {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
 }
 
 .thumbnail {
-    position: relative;
-    border-radius: var(--border-radius);
-    overflow: hidden;
-    box-shadow: var(--shadow);
+  position: relative;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
 }
 
 .thumbnail img {
-    width: 100%;
-    height: auto;
-    display: block;
+  width: 100%;
+  height: auto;
+  display: block;
 }
 
 .thumbnail .delete-btn {
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-    width: 24px;
-    height: 24px;
-    background: rgba(255, 0, 0, 0.8);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    transition: all 0.3s ease;
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 24px;
+  height: 24px;
+  background: rgba(255, 0, 0, 0.8);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: all 0.3s ease;
 }
 
 .thumbnail .delete-btn:hover {
-    background: red;
-    transform: scale(1.1);
+  background: red;
+  transform: scale(1.1);
 }
 
 .overlay-wrapper {
-    position: absolute;
-    transform-origin: center;
-    width: 100%;
-    height: 100%;
+  position: absolute;
+  /* transform-origin: left top 0px !important; */
+  width: auto;
+  height: auto;
 }
 
 .overlay-image {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    pointer-events: none;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
 }
 
 .resize-handle {
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    background: white;
-    border: 2px solid var(--primary-color);
-    border-radius: 50%;
-    z-index: 20;
-    transition: all 0.2s ease;
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border: 2px solid var(--primary-color);
+  border-radius: 50%;
+  z-index: 20;
+  transition: all 0.2s ease;
 }
 
 .resize-handle:hover {
-    transform: scale(1.2);
-    background: var(--primary-color);
+  transform: scale(1.2);
+  background: var(--primary-color);
 }
 
-.resize-handle.top-left { top: -10px; left: -10px; cursor: nw-resize; }
-.resize-handle.top-right { top: -10px; right: -10px; cursor: ne-resize; }
-.resize-handle.bottom-left { bottom: -10px; left: -10px; cursor: sw-resize; }
-.resize-handle.bottom-right { bottom: -10px; right: -10px; cursor: se-resize; }
+.resize-handle.top-left {
+  top: -10px;
+  left: -10px;
+  cursor: nw-resize;
+}
+.resize-handle.top-right {
+  top: -10px;
+  right: -10px;
+  cursor: ne-resize;
+}
+.resize-handle.bottom-left {
+  bottom: -10px;
+  left: -10px;
+  cursor: sw-resize;
+}
+.resize-handle.bottom-right {
+  bottom: -10px;
+  right: -10px;
+  cursor: se-resize;
+}
 
 .rotate-handle {
-    position: absolute;
-    top: -30px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 24px;
-    height: 24px;
-    background: white;
-    border: 2px solid var(--primary-color);
-    border-radius: 50%;
-    cursor: pointer;
-    z-index: 20;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  width: 24px;
+  height: 24px;
+  background: white;
+  border: 2px solid var(--primary-color);
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 20;
+  display: flex;
+  /* align-items: center;
+  justify-content: center; */
 }
 
 .rotate-handle::before {
-    content: "↻";
-    color: var(--primary-color);
-    font-size: 16px;
+  content: '↻';
+  color: var(--primary-color);
+  font-size: 16px;
 }
 
 h3 {
-    margin: 0 0 1rem 0;
-    font-size: 1.2rem;
-    color: #333;
+  margin: 0 0 1rem 0;
+  font-size: 1.2rem;
+  color: #333;
 }
 
-#upload-form button[type="submit"] {
-    width: 100%;
-    background: var(--primary-color);
-    color: white;
-    border: none;
-    padding: 1rem;
-    border-radius: var(--border-radius);
-    font-size: 1.1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    margin-top: 1rem;
+#upload-form button[type='submit'] {
+  width: 100%;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
 }
 
-#upload-form button[type="submit"]:hover {
-    background: var(--primary-hover);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow);
+#upload-form button[type='submit']:hover {
+  background: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
 }
 
 @media screen and (max-width: 1200px) {
-    .editor-main {
-        grid-template-columns: 250px 1fr 250px;
-        gap: 1.5rem;
-    }
+  .editor-main {
+    grid-template-columns: 250px 1fr 250px;
+    gap: 1.5rem;
+  }
 
-    .editor-container {
-        padding: 1rem;
-        max-width: 100%;
-    }
+  .editor-container {
+    padding: 1rem;
+    max-width: 100%;
+  }
 
-    .filters-container,
-    .editor-sidebar,
-    .capture-container,
-    .upload-container {
-        padding: 1rem;
-        width: 100%;
-    }
+  .filters-container,
+  .editor-sidebar,
+  .capture-container,
+  .upload-container {
+    padding: 1rem;
+    width: 100%;
+  }
 }
 
 @media screen and (max-width: 992px) {
-    .editor-main {
-        grid-template-columns: 200px 1fr 200px;
-        gap: 1rem;
-    }
+  .editor-main {
+    grid-template-columns: 200px 1fr 200px;
+    gap: 1rem;
+  }
 
-    .editor-container {
-        padding: 0.75rem;
-    }
+  .editor-container {
+    padding: 0.75rem;
+  }
 
-    #capture-btn,
-    #upload-form button[type="submit"] {
-        padding: 0.8rem;
-        font-size: 1rem;
-    }
+  #capture-btn,
+  #upload-form button[type='submit'] {
+    padding: 0.8rem;
+    font-size: 1rem;
+  }
 }
 
 @media screen and (max-width: 768px) {
-    .editor-container {
-        padding: 0.5rem;
-        width: 100%;
-    }
+  .editor-container {
+    padding: 0.5rem;
+    width: 100%;
+  }
 
-    .editor-main {
-        grid-template-columns: 1fr;
-        grid-template-rows: auto;
-        gap: 0.75rem;
-        width: 100%;
-    }
+  .editor-main {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    gap: 0.75rem;
+    width: 100%;
+  }
 
-    .filters-container {
-        grid-column: 1;
-        grid-row: 2;
-        width: 100%;
-    }
+  .filters-container {
+    grid-column: 1;
+    grid-row: 2;
+    width: 100%;
+  }
 
-    .capture-container {
-        grid-column: 1;
-        grid-row: 1;
-        width: 100%;
-    }
+  .capture-container {
+    grid-column: 1;
+    grid-row: 1;
+    width: 100%;
+  }
 
-    .upload-container {
-        grid-column: 1;
-        grid-row: 3;
-        width: 100%;
-    }
+  .upload-container {
+    grid-column: 1;
+    grid-row: 3;
+    width: 100%;
+  }
 
-    .editor-sidebar {
-        grid-column: 1;
-        grid-row: 4;
-        width: 100%;
-    }
+  .editor-sidebar {
+    grid-column: 1;
+    grid-row: 4;
+    width: 100%;
+  }
 
-    .filters-grid,
-    #thumbnails-container {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 0.8rem;
-    }
+  .filters-grid,
+  #thumbnails-container {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.8rem;
+  }
 
-    .filters-container,
-    .editor-sidebar,
-    .capture-container,
-    .upload-container {
-        margin-bottom: 0.75rem;
-        padding: 0.75rem;
-    }
+  .filters-container,
+  .editor-sidebar,
+  .capture-container,
+  .upload-container {
+    margin-bottom: 0.75rem;
+    padding: 0.75rem;
+  }
 
-    .webcam-container {
-        width: 100%;
-        max-width: 100%;
-    }
+  .webcam-container {
+    width: 100%;
+    max-width: 100%;
+  }
 
-    .upload-wrapper {
-        width: 100%;
-    }
+  .upload-wrapper {
+    width: 100%;
+  }
 }
 
 @media screen and (max-width: 576px) {
-    .editor-container {
-        padding: 0.25rem;
-    }
+  .editor-container {
+    padding: 0.25rem;
+  }
 
-    .filters-grid,
-    #thumbnails-container {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 0.5rem;
-    }
+  .filters-grid,
+  #thumbnails-container {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
 
-    .filters-container,
-    .editor-sidebar,
-    .capture-container,
-    .upload-container {
-        padding: 0.5rem;
-        margin-bottom: 0.5rem;
-    }
+  .filters-container,
+  .editor-sidebar,
+  .capture-container,
+  .upload-container {
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
 
-    #capture-btn,
-    #upload-form button[type="submit"] {
-        padding: 0.7rem;
-        font-size: 0.9rem;
-        width: 100%;
-    }
+  #capture-btn,
+  #upload-form button[type='submit'] {
+    padding: 0.7rem;
+    font-size: 0.9rem;
+    width: 100%;
+  }
 
-    .upload-wrapper {
-        padding: 0.5rem;
-        margin-bottom: 0.5rem;
-    }
+  .upload-wrapper {
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
 
-    #file-name {
-        font-size: 0.9rem;
-    }
+  #file-name {
+    font-size: 0.9rem;
+  }
 
-    .resize-handle {
-        width: 16px;
-        height: 16px;
-    }
+  .resize-handle {
+    width: 16px;
+    height: 16px;
+  }
 
-    .rotate-handle {
-        width: 20px;
-        height: 20px;
-    }
+  .rotate-handle {
+    width: 20px;
+    height: 20px;
+  }
 }
 
 @media screen and (max-width: 400px) {
-    .editor-container {
-        padding: 0.25rem;
-    }
+  .editor-container {
+    padding: 0.25rem;
+  }
 
-    .filters-grid,
-    #thumbnails-container {
-        grid-template-columns: 1fr;
-    }
+  .filters-grid,
+  #thumbnails-container {
+    grid-template-columns: 1fr;
+  }
 
-    .filters-container,
-    .editor-sidebar,
-    .capture-container,
-    .upload-container {
-        padding: 0.5rem;
-        margin-bottom: 0.5rem;
-    }
+  .filters-container,
+  .editor-sidebar,
+  .capture-container,
+  .upload-container {
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
 
-    h3 {
-        font-size: 1rem;
-        margin-bottom: 0.5rem;
-    }
+  h3 {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
 }
 
 @media screen and (max-height: 500px) and (orientation: landscape) {
-    .editor-container {
-        padding: 0.25rem;
-    }
+  .editor-container {
+    padding: 0.25rem;
+  }
 
-    .editor-main {
-        grid-template-columns: 150px 1fr 150px;
-        gap: 0.5rem;
-    }
+  .editor-main {
+    grid-template-columns: 150px 1fr 150px;
+    gap: 0.5rem;
+  }
 
-    .filters-container {
-        grid-column: 1;
-        grid-row: 1 / span 2;
-        padding: 0.5rem;
-    }
+  .filters-container {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    padding: 0.5rem;
+  }
 
-    .editor-sidebar {
-        grid-column: 3;
-        grid-row: 1 / span 2;
-        padding: 0.5rem;
-    }
+  .editor-sidebar {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+    padding: 0.5rem;
+  }
 
-    .filters-grid,
-    #thumbnails-container {
-        grid-template-columns: 1fr;
-        max-height: 70vh;
-        overflow-y: auto;
-    }
+  .filters-grid,
+  #thumbnails-container {
+    grid-template-columns: 1fr;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
 
-    .capture-container,
-    .upload-container {
-        padding: 0.5rem;
-    }
+  .capture-container,
+  .upload-container {
+    padding: 0.5rem;
+  }
 
-    #capture-btn,
-    #upload-form button[type="submit"] {
-        padding: 0.5rem;
-    }
+  #capture-btn,
+  #upload-form button[type='submit'] {
+    padding: 0.5rem;
+  }
 }
